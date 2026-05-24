@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心影 - 抑郁症科普体验</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app">
+        <!-- 开场引导页 -->
+        <div id="opening-page" class="page active">
+            <div class="city-background">
+                <div class="silhouettes">
+                    <div class="silhouette silhouette-1"></div>
+                    <div class="silhouette silhouette-2"></div>
+                    <div class="silhouette main-silhouette"></div>
+                </div>
+            </div>
+            <div class="opening-content">
+                <div class="opening-text">
+                    <p id="text-line-1" class="text-line"></p>
+                    <p id="text-line-2" class="text-line"></p>
+                </div>
+                <div class="opening-buttons">
+                    <button id="ready-btn" class="btn btn-primary" style="display: none;">我准备好了</button>
+                    <button id="info-btn" class="btn btn-secondary" style="display: none;">先了解一下</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 说明弹窗 -->
+        <div id="info-modal" class="modal">
+            <div class="modal-content">
+                <h2>温馨提示</h2>
+                <p>这是一个抑郁症科普体验应用，旨在帮助您了解抑郁症患者的内心感受。</p>
+                <p>这不是诊断工具，如有需要请寻求专业帮助。</p>
+                <p>您可以随时暂停或停止体验。</p>
+                <button id="close-modal-btn" class="btn btn-primary">我知道了</button>
+            </div>
+        </div>
+
+        <!-- 疾病选择大厅 -->
+        <div id="hall-page" class="page">
+            <div class="hall-content">
+                <h1 class="hall-title">选择一扇门</h1>
+                <div class="doors-container">
+                    <div class="door door-locked">
+                        <div class="door-text">敬请期待</div>
+                    </div>
+                    <div class="door door-locked">
+                        <div class="door-text">敬请期待</div>
+                    </div>
+                    <div class="door door-locked">
+                        <div class="door-text">敬请期待</div>
+                    </div>
+                    <div class="door door-depression" id="depression-door">
+                        <div class="door-text">我已经很久没有真正笑过了</div>
+                        <div class="completed-badge" id="completed-badge" style="display: none;">已接近</div>
+                    </div>
+                    <div class="door door-locked">
+                        <div class="door-text">敬请期待</div>
+                    </div>
+                    <div class="door door-locked">
+                        <div class="door-text">敬请期待</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 抑郁症剧本体验页 -->
+        <div id="script-page" class="page">
+            <div class="script-container" id="script-container">
+                <!-- 场景1：早晨 - 沉重唤醒 -->
+                <div id="scene-1" class="scene active">
+                    <div class="scene-1-content">
+                        <div class="alarm-clock">
+                            <div class="alarm-time" id="alarm-time">07:00</div>
+                        </div>
+                        <div class="press-hint" id="press-hint">长按唤醒</div>
+                        <div class="progress-bar" id="wake-progress">
+                            <div class="progress-fill" id="wake-progress-fill"></div>
+                        </div>
+                        <div class="inner-monologue" id="scene1-monologue"></div>
+                    </div>
+                </div>
+
+                <!-- 场景2选择 -->
+                <div id="scene-2-choice" class="scene">
+                    <div class="scene-2-choice-content">
+                        <h2>你选择...</h2>
+                        <div class="choice-buttons">
+                            <button id="choice-go-out" class="btn btn-choice">努力起床，出门上班</button>
+                            <button id="choice-stay" class="btn btn-choice">继续躺着</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 场景2A：出门 - 维持微笑 -->
+                <div id="scene-2a" class="scene">
+                    <div class="scene-2a-content">
+                        <div class="colleague-silhouette"></div>
+                        <div class="smile-mask" id="smile-mask">
+                            <svg class="smile-arc" viewBox="0 0 200 100" id="smile-svg">
+                                <path id="smile-path" d="M 20 50 Q 100 50 180 50" fill="none" stroke="#000" stroke-width="4"/>
+                            </svg>
+                        </div>
+                        <div class="smile-hint">点击并按住维持微笑</div>
+                        <div class="inner-monologue" id="scene2a-monologue"></div>
+                    </div>
+                </div>
+
+                <!-- 场景2B：继续躺着 - 自我攻击弹幕 -->
+                <div id="scene-2b" class="scene">
+                    <div class="scene-2b-content">
+                        <div class="window-light" id="window-light"></div>
+                        <div class="danmaku-container" id="danmaku-container"></div>
+                        <div class="inner-monologue" id="scene2b-monologue"></div>
+                    </div>
+                </div>
+
+                <!-- 场景3A：摘下面具 -->
+                <div id="scene-3a" class="scene">
+                    <div class="scene-3a-content">
+                        <button id="remove-mask-btn" class="btn btn-remove-mask">摘下面具...说出真实感受</button>
+                        <div class="people-reactions" id="people-reactions"></div>
+                        <div class="inner-monologue" id="scene3a-monologue"></div>
+                    </div>
+                </div>
+
+                <!-- 场景4：夜晚 - 选项消逝 -->
+                <div id="scene-4" class="scene">
+                    <div class="scene-4-content">
+                        <div class="night-options" id="night-options">
+                            <div class="night-option" data-option="music">听音乐</div>
+                            <div class="night-option" data-option="watch">看剧</div>
+                            <div class="night-option" data-option="chat">找人聊天</div>
+                        </div>
+                        <button id="try-message-btn" class="btn btn-message" style="display: none;">试着给某人发消息...</button>
+                        <div class="message-bubble" id="message-bubble" style="display: none;">
+                            <div class="message-text">我最近...感觉不太好...</div>
+                        </div>
+                        <div class="reply-bubble" id="reply-bubble" style="display: none;">
+                            <div class="reply-text">早点睡吧</div>
+                        </div>
+                        <div class="inner-monologue" id="scene4-monologue"></div>
+                    </div>
+                </div>
+
+                <!-- 场景5：镜子 -->
+                <div id="scene-5" class="scene">
+                    <div class="scene-5-content">
+                        <div class="mirror-container" id="mirror-container">
+                            <div class="mirror" id="mirror">
+                                <div class="mirror-reflection" id="mirror-reflection"></div>
+                            </div>
+                        </div>
+                        <div class="crack-overlay" id="crack-overlay" style="display: none;"></div>
+                        <div class="inner-monologue" id="scene5-monologue"></div>
+                    </div>
+                </div>
+
+                <!-- 过渡动画 -->
+                <div id="transition-scene" class="scene">
+                    <div class="transition-content">
+                        <div class="light-spots"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 科普总结页 -->
+        <div id="science-page" class="page">
+            <div class="science-container" id="science-container">
+                <section class="science-section" id="section-experience">
+                    <h2>你刚才体验了什么</h2>
+                    <p>这是抑郁症患者可能经历的一些感受。</p>
+                </section>
+                <section class="science-section" id="section-misconceptions">
+                    <h2>它不是什么</h2>
+                    <div class="misconception-item">
+                        <span class="misconception-text struck-through">它不是矫情</span>
+                    </div>
+                    <div class="misconception-item">
+                        <span class="misconception-text struck-through">它不是想太多</span>
+                    </div>
+                    <div class="misconception-item">
+                        <span class="misconception-text struck-through">它不是软弱</span>
+                    </div>
+                </section>
+                <section class="science-section" id="section-what-it-is">
+                    <h2>它是什么</h2>
+                    <p>抑郁症是一种常见的心理疾病，与大脑神经递质、遗传、环境等多种因素有关。</p>
+                    <p>它需要专业的治疗和支持。</p>
+                </section>
+                <section class="science-section" id="section-suggestions">
+                    <h2>给身边人的建议</h2>
+                    <ul>
+                        <li>倾听，不要评判</li>
+                        <li>陪伴，不要说教</li>
+                        <li>鼓励寻求专业帮助</li>
+                    </ul>
+                </section>
+                <section class="science-section" id="section-data">
+                    <h2>真实数据</h2>
+                    <p>全球约有3.5亿人受抑郁症影响。</p>
+                    <p>但抑郁症是可以治疗的。</p>
+                </section>
+                <div class="science-next-btn-container">
+                    <button id="science-next-btn" class="btn btn-primary">完成体验</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 共情档案页 -->
+        <div id="empathy-page" class="page">
+            <div class="empathy-content">
+                <div class="empathy-icon">❤️</div>
+                <h1>你刚刚走进了一个人的内心</h1>
+                <p>感谢你的理解和陪伴，对他们来说很重要。</p>
+                <button id="share-poster-btn" class="btn btn-primary">生成海报</button>
+                <button id="go-to-resources-btn" class="btn btn-secondary">查看资源</button>
+            </div>
+        </div>
+
+        <!-- 资源页 -->
+        <div id="resources-page" class="page">
+            <div class="resources-content">
+                <h1>心理援助资源</h1>
+                <div class="resource-cards">
+                    <div class="resource-card">
+                        <h2>全国心理援助热线</h2>
+                        <p class="hotline-number">400-161-9995</p>
+                    </div>
+                    <div class="resource-card">
+                        <h2>北京心理危机研究与干预中心</h2>
+                        <p class="hotline-number">010-82951332</p>
+                    </div>
+                    <div class="resource-card">
+                        <h2>希望24热线</h2>
+                        <p class="hotline-number">400-161-9995</p>
+                    </div>
+                </div>
+                <div class="encouragement-text">
+                    <p>你不是一个人。</p>
+                    <p>寻求帮助是勇敢的。</p>
+                    <p>一切都会好起来的。</p>
+                </div>
+                <button id="back-to-hall-btn" class="btn btn-primary">回到大厅</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
