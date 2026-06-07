@@ -781,36 +781,49 @@ function moveTaskButton() {
     const taskButton = document.getElementById('task-button');
     if (!taskButton) return;
 
-    // 获取按钮实际尺寸,避免出现在屏幕特别边缘的位置
+    // 获取按钮实际尺寸
     const btnRect = taskButton.getBoundingClientRect();
     const btnWidth = btnRect.width || 130;
     const btnHeight = btnRect.height || 50;
 
-    // 避开显示器
+    // 取显示器中心位置,按钮围绕显示器中央小范围随机
     const monitor = document.querySelector('.computer-monitor');
-    const monitorRect = monitor ? monitor.getBoundingClientRect() : { top: 0, bottom: 0, left: 0, right: 0 };
+    const monitorRect = monitor
+        ? monitor.getBoundingClientRect()
+        : { left: window.innerWidth / 2 - 240, right: window.innerWidth / 2 + 240, top: window.innerHeight / 2 - 150, bottom: window.innerHeight / 2 + 150 };
 
-    // 边缘留白:四周至少 80px,避免按钮贴边
-    const padding = 80;
-    const minX = padding;
-    const maxX = window.innerWidth - padding - btnWidth;
-    const minY = padding;
-    const maxY = window.innerHeight - padding - btnHeight;
+    const cx = monitorRect.left + monitorRect.width / 2;
+    const cy = monitorRect.top + monitorRect.height / 2;
+
+    // 距离显示器中心的活动半径(px)
+    const radius = 220;
+    // 避开左右 cubicle 浅灰条带(各 80px)
+    const sidePad = 100;
+    // 避开上下边缘
+    const topPad = 80;
+    const bottomPad = 120;
+
+    // 可用范围:以显示器中心为基准,左右 radius、上下 radius 的矩形,
+    // 再裁剪到深色区域内(sidePad/topPad/bottomPad)
+    const minX = Math.max(sidePad, cx - radius);
+    const maxX = Math.min(window.innerWidth - sidePad - btnWidth, cx + radius - btnWidth);
+    const minY = Math.max(topPad, cy - radius);
+    const maxY = Math.min(window.innerHeight - bottomPad - btnHeight, cy + radius - btnHeight);
 
     let randomX, randomY;
     let attempts = 0;
 
-    // 确保按钮不与显示器重叠
+    // 重试:确保不与显示器重叠
     do {
         randomX = minX + Math.random() * (maxX - minX);
         randomY = minY + Math.random() * (maxY - minY);
         attempts++;
     } while (
-        attempts < 20 &&
-        randomX + btnWidth > monitorRect.left - 50 &&
-        randomX < monitorRect.right + 50 &&
-        randomY + btnHeight > monitorRect.top - 50 &&
-        randomY < monitorRect.bottom + 50
+        attempts < 30 &&
+        randomX + btnWidth > monitorRect.left &&
+        randomX < monitorRect.right &&
+        randomY + btnHeight > monitorRect.top &&
+        randomY < monitorRect.bottom
     );
 
     taskButton.style.left = randomX + 'px';
