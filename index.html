@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心影 - 抑郁症科普体验</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app">
+        <!-- 全局继续按钮 -->
+        <button id="continue-btn" class="continue-btn">继续 →</button>
+        <div id="continue-hint" class="continue-hint">点击右下角按钮继续</div>
+        
+        <!-- 开场引导页 -->
+        <div id="opening-page" class="page active">
+            <div class="city-background">
+                <div class="silhouettes">
+                    <div class="silhouette silhouette-1"></div>
+                    <div class="silhouette silhouette-2"></div>
+                    <div class="silhouette main-silhouette"></div>
+                </div>
+            </div>
+            <div class="opening-content">
+                <div class="opening-text">
+                    <p id="text-line-1" class="text-line"></p>
+                    <p id="text-line-2" class="text-line"></p>
+                </div>
+                <div class="opening-buttons">
+                    <button id="ready-btn" class="btn btn-primary" style="display: none;">我准备好了</button>
+                    <button id="info-btn" class="btn btn-secondary" style="display: none;">先了解一下</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 说明弹窗 -->
+        <div id="info-modal" class="modal">
+            <div class="modal-content">
+                <h2>温馨提示</h2>
+                <p>这是一个抑郁症科普体验应用，旨在帮助您了解抑郁症患者的内心感受。</p>
+                <p>这不是诊断工具，如有需要请寻求专业帮助。</p>
+                <p>您可以随时暂停或停止体验。</p>
+                <button id="close-modal-btn" class="btn btn-primary">我知道了</button>
+            </div>
+        </div>
+
+        <!-- 疾病选择大厅 -->
+        <div id="hall-page" class="page">
+            <div class="hall-content">
+                <h1 class="hall-title">选择一扇门</h1>
+                <div class="doors-container">
+                    <div class="door door-locked">
+                        <div class="door-text">敬请期待</div>
+                    </div>
+                    <div class="door door-locked">
+                        <div class="door-text">敬请期待</div>
+                    </div>
+                    <div class="door door-locked">
+                        <div class="door-text">敬请期待</div>
+                    </div>
+                    <div class="door door-depression" id="depression-door">
+                        <div class="door-text">我已经很久没有真正笑过了</div>
+                        <div class="completed-badge" id="completed-badge" style="display: none;">已接近</div>
+                    </div>
+                    <div class="door door-locked">
+                        <div class="door-text">敬请期待</div>
+                    </div>
+                    <div class="door door-locked">
+                        <div class="door-text">敬请期待</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 抑郁症剧本体验页 -->
+        <div id="script-page" class="page">
+            <div class="script-container" id="script-container">
+                <!-- 引导场景：身份与场景交代 -->
+                <div id="scene-intro" class="scene">
+                    <div class="scene-intro-content">
+                        <div class="intro-silhouette"></div>
+                        <div class="intro-text-container">
+                            <p class="intro-line" id="intro-line-1"></p>
+                            <p class="intro-line intro-line-pause" id="intro-line-2"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 场景1：早晨 - 沉重唤醒 -->
+                <div id="scene-1" class="scene">
+                    <div class="scene-1-content" id="scene-1-content">
+                        <div class="wake-up-eyes" id="wake-up-eyes">
+                            <div class="eye-lid eye-lid-top" id="eye-lid-top"></div>
+                            <div class="eye-lid eye-lid-bottom" id="eye-lid-bottom"></div>
+                        </div>
+                        <div class="phone-container" id="phone-container">
+                            <div class="phone-frame">
+                                <div class="phone-screen" id="phone-screen">
+                                    <div class="phone-status-bar">
+                                        <span class="phone-time" id="phone-status-time">07:00</span>
+                                        <div class="phone-icons">
+                                            <span class="icon-moon">🌙</span>
+                                            <span class="icon-wifi">📶</span>
+                                            <span class="icon-battery">🔋</span>
+                                        </div>
+                                    </div>
+                                    <div class="phone-time-display">
+                                        <div class="big-time" id="big-time">07:00</div>
+                                        <div class="date-text" id="date-text">June 7 · Sunday</div>
+                                    </div>
+                                    <div class="phone-alarm-section">
+                                        <div class="alarm-label">Alarm</div>
+                                        <div class="snooze-text">Snooze(10 minutes)</div>
+                                    </div>
+                                    <div class="phone-slider-area" id="phone-slider-area">
+                                        <div class="slider-dots">
+                                            <span class="dot"></span>
+                                            <span class="dot"></span>
+                                            <span class="dot dot-active"></span>
+                                            <span class="dot"></span>
+                                            <span class="dot"></span>
+                                        </div>
+                                        <div class="slider-thumb" id="slider-thumb">
+                                            <svg viewBox="0 0 40 40">
+                                                <circle cx="20" cy="20" r="18" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.6"/>
+                                                <path d="M 12 20 L 28 20 M 22 14 L 28 20 L 22 26" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </div>
+                                        <div class="slider-hint">Slide to turn off alarm</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <canvas id="fog-canvas" class="fog-canvas"></canvas>
+                        </div>
+                        <div class="wake-hint" id="wake-hint">擦拭屏幕，睁开眼睛</div>
+                        <div class="inner-monologue" id="scene1-monologue"></div>
+                    </div>
+                </div>
+
+                <!-- 场景2选择 -->
+                <div id="scene-2-choice" class="scene">
+                    <div class="scene-2-choice-content">
+                        <h2>你选择...</h2>
+                        <div class="choice-buttons">
+                            <button id="choice-go-out" class="btn btn-choice">努力起床，出门上班</button>
+                            <button id="choice-stay" class="btn btn-choice">继续躺着</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 场景2A：出门 - 维持微笑 -->
+                <div id="scene-2a" class="scene">
+                    <div class="scene-2a-content">
+                        <div class="emotion-face-container" id="emotion-face">
+                            <div class="face-base">
+                                <div class="face-eyes">
+                                    <div class="eye" id="eye-left"></div>
+                                    <div class="eye" id="eye-right"></div>
+                                </div>
+                                <div class="face-mouth">
+                                    <svg class="mouth-svg" viewBox="0 0 80 40">
+                                        <path id="mouth-path" class="mouth-path" d="M 10 20 Q 40 30 70 20" fill="none" stroke="#2c3e50" stroke-width="4" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="emotion-hint" id="emotion-hint">点击并按住面具，让它露出微笑</div>
+                        </div>
+                        <div class="psychology-text" id="psychology-text"></div>
+                        <div class="complete-hint" id="complete-hint">✓ 可以松手了</div>
+                    </div>
+                </div>
+
+                <!-- 场景2B：继续躺着 - 自我攻击弹幕 -->
+                <div id="scene-2b" class="scene">
+                    <div class="scene-2b-content">
+                        <div class="window-light" id="window-light"></div>
+                        <div class="danmaku-container" id="danmaku-container"></div>
+                        <div class="inner-monologue" id="scene2b-monologue"></div>
+                    </div>
+                </div>
+
+                <!-- 场景3A：工位上班 - 麻木重复 -->
+                <div id="scene-3a" class="scene">
+                    <div class="scene-3a-content">
+                        <div class="office-cubicle">
+                            <div class="cubicle-wall cubicle-left"></div>
+                            <div class="cubicle-wall cubicle-right"></div>
+                            <div class="colleague-blur colleague-back"></div>
+                            <div class="colleague-blur colleague-side"></div>
+                            <div class="desk-surface">
+                                <div class="computer-monitor">
+                                    <div class="monitor-screen">
+                                        <div class="screen-time" id="screen-time">15:00:00</div>
+                                        <div class="screen-content">
+                                            <div class="spreadsheet">
+                                                <div class="row"><span>ID</span><span>Status</span><span>Value</span></div>
+                                                <div class="row"><span>001</span><span>✓</span><span>1200</span></div>
+                                                <div class="row"><span>002</span><span>✓</span><span>850</span></div>
+                                                <div class="row"><span>003</span><span>⏳</span><span>920</span></div>
+                                                <div class="row"><span>004</span><span>✓</span><span>1100</span></div>
+                                                <div class="row"><span>005</span><span>⏳</span><span>780</span></div>
+                                            </div>
+                                            <div class="email-list">
+                                                <div class="email-item">📧 Re: Q2 Report Review</div>
+                                                <div class="email-item">📧 Meeting Notes - 14:30</div>
+                                                <div class="email-item">📧 Updated Task List</div>
+                                                <div class="email-item">📧 Re: 数据核对</div>
+                                                <div class="email-item">📧 Fwd: 紧急</div>
+                                            </div>
+                                            <div class="task-list">
+                                                <div class="task-item">□ 数据整理</div>
+                                                <div class="task-item">□ 邮件回复</div>
+                                                <div class="task-item">□ 表格汇总</div>
+                                                <div class="task-item">□ 周报提交</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="monitor-stand"></div>
+                                </div>
+                                <div class="task-button" id="task-button">
+                                    <span class="btn-text">完成任务</span>
+                                </div>
+                                <div class="click-counter" id="click-counter">0 / 20</div>
+                            </div>
+                        </div>
+                        <div class="inner-monologue" id="scene3a-monologue"></div>
+                        <div class="custom-cursor" id="custom-cursor">
+                            <svg viewBox="0 0 32 32" width="32" height="32">
+                                <path d="M 4 2 L 4 28 L 12 20 L 16 28 L 20 26 L 16 18 L 26 18 Z" 
+                                      fill="#ffffff" stroke="#000000" stroke-width="1.5" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 场景4：夜晚 - 选项消逝 -->
+                <div id="scene-4" class="scene">
+                    <div class="scene-4-content">
+                        <div class="night-options" id="night-options">
+                            <div class="night-option" data-option="music">听音乐</div>
+                            <div class="night-option" data-option="watch">看剧</div>
+                            <div class="night-option" data-option="chat">找人聊天</div>
+                        </div>
+                        <button id="try-message-btn" class="btn btn-message" style="display: none;">试着给某人发消息...</button>
+                        <div class="message-bubble" id="message-bubble" style="display: none;">
+                            <div class="message-text">我最近...感觉不太好...</div>
+                        </div>
+                        <div class="reply-bubble" id="reply-bubble" style="display: none;">
+                            <div class="reply-text">早点睡吧</div>
+                        </div>
+                        <div class="inner-monologue" id="scene4-monologue"></div>
+                    </div>
+                </div>
+
+                <!-- 场景5：镜子 -->
+                <div id="scene-5" class="scene">
+                    <div class="scene-5-content">
+                        <div class="mirror-container" id="mirror-container">
+                            <div class="mirror" id="mirror">
+                                <div class="mirror-reflection" id="mirror-reflection"></div>
+                            </div>
+                        </div>
+                        <div class="crack-overlay" id="crack-overlay" style="display: none;"></div>
+                        <div class="inner-monologue" id="scene5-monologue"></div>
+                    </div>
+                </div>
+
+                <!-- 过渡动画 -->
+                <div id="transition-scene" class="scene">
+                    <div class="transition-content">
+                        <div class="light-spots"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 科普总结页 -->
+        <div id="science-page" class="page">
+            <div class="science-container" id="science-container">
+                <section class="science-section" id="section-experience">
+                    <h2>你刚才体验了什么</h2>
+                    <p>这是抑郁症患者可能经历的一些感受。</p>
+                </section>
+                <section class="science-section" id="section-misconceptions">
+                    <h2>它不是什么</h2>
+                    <div class="misconception-item">
+                        <span class="misconception-text struck-through">它不是矫情</span>
+                    </div>
+                    <div class="misconception-item">
+                        <span class="misconception-text struck-through">它不是想太多</span>
+                    </div>
+                    <div class="misconception-item">
+                        <span class="misconception-text struck-through">它不是软弱</span>
+                    </div>
+                </section>
+                <section class="science-section" id="section-what-it-is">
+                    <h2>它是什么</h2>
+                    <p>抑郁症是一种常见的心理疾病，与大脑神经递质、遗传、环境等多种因素有关。</p>
+                    <p>它需要专业的治疗和支持。</p>
+                </section>
+                <section class="science-section" id="section-suggestions">
+                    <h2>给身边人的建议</h2>
+                    <ul>
+                        <li>倾听，不要评判</li>
+                        <li>陪伴，不要说教</li>
+                        <li>鼓励寻求专业帮助</li>
+                    </ul>
+                </section>
+                <section class="science-section" id="section-data">
+                    <h2>真实数据</h2>
+                    <p>全球约有3.5亿人受抑郁症影响。</p>
+                    <p>但抑郁症是可以治疗的。</p>
+                </section>
+                <div class="science-next-btn-container">
+                    <button id="science-next-btn" class="btn btn-primary">完成体验</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 共情档案页 -->
+        <div id="empathy-page" class="page">
+            <div class="empathy-content">
+                <div class="empathy-icon">❤️</div>
+                <h1>你刚刚走进了一个人的内心</h1>
+                <p>感谢你的理解和陪伴，对他们来说很重要。</p>
+                <button id="share-poster-btn" class="btn btn-primary">生成海报</button>
+                <button id="go-to-resources-btn" class="btn btn-secondary">查看资源</button>
+            </div>
+        </div>
+
+        <!-- 资源页 -->
+        <div id="resources-page" class="page">
+            <div class="resources-content">
+                <h1>心理援助资源</h1>
+                <div class="resource-cards">
+                    <div class="resource-card">
+                        <h2>全国心理援助热线</h2>
+                        <p class="hotline-number">400-161-9995</p>
+                    </div>
+                    <div class="resource-card">
+                        <h2>北京心理危机研究与干预中心</h2>
+                        <p class="hotline-number">010-82951332</p>
+                    </div>
+                    <div class="resource-card">
+                        <h2>希望24热线</h2>
+                        <p class="hotline-number">400-161-9995</p>
+                    </div>
+                </div>
+                <div class="encouragement-text">
+                    <p>你不是一个人。</p>
+                    <p>寻求帮助是勇敢的。</p>
+                    <p>一切都会好起来的。</p>
+                </div>
+                <button id="back-to-hall-btn" class="btn btn-primary">回到大厅</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
