@@ -780,20 +780,26 @@ function handleCursorTouchMove(e) {
 function moveTaskButton() {
     const taskButton = document.getElementById('task-button');
     if (!taskButton) return;
-    
-    // 在屏幕范围内随机位置（避开显示器和顶部计数器）
+
+    // 获取按钮实际尺寸,避免出现在屏幕特别边缘的位置
+    const btnRect = taskButton.getBoundingClientRect();
+    const btnWidth = btnRect.width || 130;
+    const btnHeight = btnRect.height || 50;
+
+    // 避开显示器
     const monitor = document.querySelector('.computer-monitor');
     const monitorRect = monitor ? monitor.getBoundingClientRect() : { top: 0, bottom: 0, left: 0, right: 0 };
-    
-    const padding = 30;
+
+    // 边缘留白:四周至少 80px,避免按钮贴边
+    const padding = 80;
     const minX = padding;
-    const maxX = window.innerWidth - padding - 130;
+    const maxX = window.innerWidth - padding - btnWidth;
     const minY = padding;
-    const maxY = window.innerHeight - padding - 50;
-    
+    const maxY = window.innerHeight - padding - btnHeight;
+
     let randomX, randomY;
     let attempts = 0;
-    
+
     // 确保按钮不与显示器重叠
     do {
         randomX = minX + Math.random() * (maxX - minX);
@@ -801,12 +807,12 @@ function moveTaskButton() {
         attempts++;
     } while (
         attempts < 20 &&
-        randomX > monitorRect.left - 50 &&
+        randomX + btnWidth > monitorRect.left - 50 &&
         randomX < monitorRect.right + 50 &&
-        randomY > monitorRect.top - 50 &&
+        randomY + btnHeight > monitorRect.top - 50 &&
         randomY < monitorRect.bottom + 50
     );
-    
+
     taskButton.style.left = randomX + 'px';
     taskButton.style.top = randomY + 'px';
     taskButton.classList.remove('fading');
