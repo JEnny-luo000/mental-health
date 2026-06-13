@@ -136,17 +136,32 @@ body {
     z-index: 10;
     text-align: center;
     padding: 20px;
+    transition: transform 1.2s ease;
+}
+
+.opening-content.settled {
+    transform: translateY(-30px);
 }
 
 .text-line {
     font-size: 28px;
     margin: 20px 0;
     opacity: 0;
+    transition: opacity 1.5s ease, transform 1.2s ease;
 }
 
 .text-line.visible {
     opacity: 1;
-    transition: opacity 1.5s ease;
+}
+
+.opening-content.settled .text-line {
+    animation: settle-bounce 1.2s ease forwards;
+}
+
+@keyframes settle-bounce {
+    0% { transform: translateY(0); }
+    40% { transform: translateY(-12px); }
+    100% { transform: translateY(0); }
 }
 
 .opening-buttons {
@@ -155,6 +170,20 @@ body {
     gap: 20px;
     justify-content: center;
     flex-wrap: wrap;
+    align-items: center;
+}
+
+.opening-buttons .btn {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    pointer-events: none;
+}
+
+.opening-buttons.visible .btn {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
 /* 弹窗样式 */
@@ -314,28 +343,13 @@ body {
     text-align: center;
     max-width: 90%;
     padding: 0 20px;
-    animation: tremble 0.1s infinite alternate;
     white-space: nowrap;
     z-index: 30;
 }
 
-@keyframes tremble {
-    0%, 100% { text-shadow: 0 0 0 transparent; }
-    50% { text-shadow: 1px 0 0 rgba(149, 165, 166, 0.3), -1px 0 0 rgba(149, 165, 166, 0.3); }
-}
-
-/* 故障艺术效果 */
+/* 故障艺术效果（静态色调偏移，不再高频闪烁） */
 .glitch-effect {
-    animation: glitch 0.3s infinite;
     position: relative;
-}
-
-@keyframes glitch {
-    0% { filter: hue-rotate(0deg); }
-    25% { filter: hue-rotate(10deg) saturate(1.2); }
-    50% { filter: hue-rotate(0deg); }
-    75% { filter: hue-rotate(-10deg) saturate(1.2); }
-    100% { filter: hue-rotate(0deg); }
 }
 
 /* 暗角效果 */
@@ -443,7 +457,7 @@ body {
     100% { transform: translate(0, 0); }
 }
 
-/* 睁眼效果 */
+/* 睁眼效果：上下两片弧形眼皮（SVG 路径） */
 .wake-up-eyes {
     position: fixed;
     top: 0;
@@ -452,34 +466,36 @@ body {
     height: 100%;
     pointer-events: none;
     z-index: 200;
+    overflow: hidden;
 }
 
-.eye-lid {
+.eye-lid-svg {
     position: absolute;
+    top: 0;
     left: 0;
     width: 100%;
-    background: #000;
-    transition: transform 1.5s ease;
+    height: 100%;
+    display: block;
 }
 
-.eye-lid-top {
-    top: 0;
-    height: 50%;
+.eye-lid-path {
+    transition: transform 3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.eye-lid-path-top {
     transform: translateY(0);
 }
 
-.eye-lid-bottom {
-    bottom: 0;
-    height: 50%;
+.eye-lid-path-bottom {
     transform: translateY(0);
 }
 
-.wake-up-eyes.opening .eye-lid-top {
-    transform: translateY(-100%);
+.wake-up-eyes.opening .eye-lid-path-top {
+    transform: translateY(-55vh);
 }
 
-.wake-up-eyes.opening .eye-lid-bottom {
-    transform: translateY(100%);
+.wake-up-eyes.opening .eye-lid-path-bottom {
+    transform: translateY(55vh);
 }
 
 /* 手机容器 */
@@ -647,36 +663,194 @@ body {
     font-weight: 500;
 }
 
-/* 雾气画布 */
-.fog-canvas {
+/* 闹钟关闭后：隐藏闹钟界面元素 */
+.phone-screen.alarm-active .phone-wallpaper {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.phone-screen:not(.alarm-active) .phone-status-bar,
+.phone-screen:not(.alarm-active) .phone-time-display,
+.phone-screen:not(.alarm-active) .phone-alarm-section,
+.phone-screen:not(.alarm-active) .phone-slider-area {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.phone-screen.alarm-active .phone-status-bar,
+.phone-screen.alarm-active .phone-time-display,
+.phone-screen.alarm-active .phone-alarm-section,
+.phone-screen.alarm-active .phone-slider-area {
+    transition: opacity 0.4s ease;
+}
+
+.phone-screen .phone-status-bar,
+.phone-screen .phone-time-display,
+.phone-screen .phone-alarm-section,
+.phone-screen .phone-slider-area {
+    position: relative;
+    z-index: 2;
+}
+
+/* 经典 iPhone 锁屏壁纸 */
+.phone-wallpaper {
     position: absolute;
-    top: 12px;
-    left: 12px;
-    width: calc(100% - 24px);
-    height: calc(100% - 24px);
-    border-radius: 30px;
-    z-index: 20;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+    background: linear-gradient(160deg, #1a2a6c 0%, #b21f1f 35%, #fdbb2d 70%, #ff5f6d 100%);
+    opacity: 1;
+    transition: opacity 0.6s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.phone-wallpaper::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    left: -20%;
+    width: 140%;
+    height: 140%;
+    background:
+        radial-gradient(circle at 20% 25%, rgba(255, 200, 150, 0.55) 0%, transparent 35%),
+        radial-gradient(circle at 80% 15%, rgba(255, 140, 180, 0.5) 0%, transparent 40%),
+        radial-gradient(circle at 75% 75%, rgba(120, 200, 255, 0.55) 0%, transparent 45%),
+        radial-gradient(circle at 25% 80%, rgba(180, 120, 255, 0.45) 0%, transparent 40%);
+    filter: blur(8px);
+    animation: wallpaperFloat 14s ease-in-out infinite alternate;
+}
+
+.wallpaper-bubble {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(18px);
+    opacity: 0.65;
+    mix-blend-mode: screen;
+}
+
+.wallpaper-bubble-1 {
+    top: 10%;
+    left: 8%;
+    width: 110px;
+    height: 110px;
+    background: radial-gradient(circle, rgba(255, 180, 200, 0.9) 0%, transparent 70%);
+    animation: bubbleDrift 18s ease-in-out infinite alternate;
+}
+
+.wallpaper-bubble-2 {
+    top: 55%;
+    left: 70%;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, rgba(140, 200, 255, 0.85) 0%, transparent 70%);
+    animation: bubbleDrift 22s ease-in-out infinite alternate-reverse;
+}
+
+.wallpaper-bubble-3 {
+    top: 70%;
+    left: 12%;
+    width: 95px;
+    height: 95px;
+    background: radial-gradient(circle, rgba(255, 220, 140, 0.8) 0%, transparent 70%);
+    animation: bubbleDrift 16s ease-in-out infinite alternate;
+}
+
+.wallpaper-bubble-4 {
+    top: 18%;
+    left: 60%;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, rgba(200, 160, 255, 0.8) 0%, transparent 70%);
+    animation: bubbleDrift 20s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes wallpaperFloat {
+    0%   { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(20px, -15px) rotate(8deg); }
+}
+
+@keyframes bubbleDrift {
+    0%   { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(15px, -20px) scale(1.1); }
+}
+
+.wallpaper-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: #ffffff;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+    font-weight: 300;
+    padding: 0 16px;
+    margin-top: -40px;
+}
+
+.wallpaper-time {
+    font-size: 70px;
+    font-weight: 200;
+    letter-spacing: -2px;
+    line-height: 1;
+    margin-bottom: 6px;
+}
+
+.wallpaper-date {
+    font-size: 16px;
+    font-weight: 500;
+    opacity: 0.95;
+    letter-spacing: 0.5px;
+}
+
+/* 雾气画布：全屏覆盖，睁眼过程中同步淡入 */
+.fog-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    z-index: 150;
     cursor: crosshair;
-    transition: opacity 1s ease;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 3s ease;
+}
+
+.fog-canvas.active {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .fog-canvas.cleared {
     opacity: 0;
     pointer-events: none;
+    /* 缓慢淡出：约 5s 渐渐散去，不再"一下子消失" */
+    transition: opacity 5s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 .wake-hint {
-    color: var(--light-gray);
-    font-size: 14px;
+    color: #ecf0f1;
+    font-size: 16px;
     margin-top: 20px;
-    z-index: 5;
+    z-index: 180;
     text-align: center;
-    opacity: 0.8;
-    animation: hintPulse 2s ease-in-out infinite;
+    opacity: 0;
+    animation: hintFadeIn 1s ease 3.5s forwards, hintPulse 2s ease-in-out 4.5s infinite;
+    text-shadow: 0 0 8px rgba(0,0,0,0.8);
+    position: relative;
 }
 
 .wake-hint.hidden {
     display: none;
+}
+
+@keyframes hintFadeIn {
+    from { opacity: 0; }
+    to { opacity: 0.9; }
 }
 
 @keyframes hintPulse {
@@ -872,7 +1046,6 @@ body {
     background: linear-gradient(180deg, #4a4a52 0%, #3a3a42 100%);
     position: relative;
     overflow: hidden;
-    cursor: none;
 }
 
 .office-cubicle {
@@ -1038,7 +1211,7 @@ body {
     border-radius: 6px;
     font-size: 14px;
     font-weight: 600;
-    cursor: none;
+    cursor: pointer;
     z-index: 10;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     transition: transform 0.2s ease, opacity 0.5s ease;
@@ -1069,28 +1242,6 @@ body {
     background: rgba(0,0,0,0.3);
     padding: 8px 16px;
     border-radius: 6px;
-}
-
-/* 自定义鼠标 */
-.custom-cursor {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 32px;
-    height: 32px;
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate(-4px, -4px);
-    transition: transform 0.05s ease-out;
-    display: none;
-}
-
-.custom-cursor.active {
-    display: block;
-}
-
-.custom-cursor svg {
-    filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.5));
 }
 
 /* 场景4 */

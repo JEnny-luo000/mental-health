@@ -26,9 +26,9 @@
                     <p id="text-line-1" class="text-line"></p>
                     <p id="text-line-2" class="text-line"></p>
                 </div>
-                <div class="opening-buttons">
-                    <button id="ready-btn" class="btn btn-primary" style="display: none;">我准备好了</button>
-                    <button id="info-btn" class="btn btn-secondary" style="display: none;">先了解一下</button>
+                <div class="opening-buttons" id="opening-buttons">
+                    <button id="ready-btn" class="btn btn-primary">我准备好了</button>
+                    <button id="info-btn" class="btn btn-secondary">先了解一下</button>
                 </div>
             </div>
         </div>
@@ -90,12 +90,14 @@
                 <div id="scene-1" class="scene">
                     <div class="scene-1-content" id="scene-1-content">
                         <div class="wake-up-eyes" id="wake-up-eyes">
-                            <div class="eye-lid eye-lid-top" id="eye-lid-top"></div>
-                            <div class="eye-lid eye-lid-bottom" id="eye-lid-bottom"></div>
+                            <svg class="eye-lid-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                <path class="eye-lid-path eye-lid-path-top" d="M 0,0 L 100,0 L 100,50 L 0,50 Z" fill="#000"/>
+                                <path class="eye-lid-path eye-lid-path-bottom" d="M 0,50 L 100,50 L 100,100 L 0,100 Z" fill="#000"/>
+                            </svg>
                         </div>
                         <div class="phone-container" id="phone-container">
                             <div class="phone-frame">
-                                <div class="phone-screen" id="phone-screen">
+                                <div class="phone-screen alarm-active" id="phone-screen">
                                     <div class="phone-status-bar">
                                         <span class="phone-time" id="phone-status-time">07:00</span>
                                         <div class="phone-icons">
@@ -128,13 +130,25 @@
                                         </div>
                                         <div class="slider-hint">Slide to turn off alarm</div>
                                     </div>
+                                    <!-- 闹钟关闭后展示的经典 iPhone 壁纸 -->
+                                    <div class="phone-wallpaper" id="phone-wallpaper">
+                                        <div class="wallpaper-bubble wallpaper-bubble-1"></div>
+                                        <div class="wallpaper-bubble wallpaper-bubble-2"></div>
+                                        <div class="wallpaper-bubble wallpaper-bubble-3"></div>
+                                        <div class="wallpaper-bubble wallpaper-bubble-4"></div>
+                                        <div class="wallpaper-content">
+                                            <div class="wallpaper-time" id="wallpaper-time">07:01</div>
+                                            <div class="wallpaper-date" id="wallpaper-date">Sunday, June 7</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <canvas id="fog-canvas" class="fog-canvas"></canvas>
                         </div>
-                        <div class="wake-hint" id="wake-hint">擦拭屏幕，睁开眼睛</div>
+                        <div class="wake-hint" id="wake-hint">在屏幕上任意位置涂抹，擦开雾气</div>
                         <div class="inner-monologue" id="scene1-monologue"></div>
                     </div>
+                    <!-- 全屏雾气层：眼皮打开后才淡入,可被刮开 -->
+                    <canvas id="fog-canvas" class="fog-canvas"></canvas>
                 </div>
 
                 <!-- 场景2选择 -->
@@ -159,7 +173,7 @@
                                 </div>
                                 <div class="face-mouth">
                                     <svg class="mouth-svg" viewBox="0 0 80 40">
-                                        <path id="mouth-path" class="mouth-path" d="M 10 20 Q 40 30 70 20" fill="none" stroke="#2c3e50" stroke-width="4" stroke-linecap="round"/>
+                                        <path id="mouth-path" class="mouth-path" d="M 10 20 Q 40 5 70 20" fill="none" stroke="#2c3e50" stroke-width="4" stroke-linecap="round"/>
                                     </svg>
                                 </div>
                             </div>
@@ -224,12 +238,6 @@
                             </div>
                         </div>
                         <div class="inner-monologue" id="scene3a-monologue"></div>
-                        <div class="custom-cursor" id="custom-cursor">
-                            <svg viewBox="0 0 32 32" width="32" height="32">
-                                <path d="M 4 2 L 4 28 L 12 20 L 16 28 L 20 26 L 16 18 L 26 18 Z" 
-                                      fill="#ffffff" stroke="#000000" stroke-width="1.5" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
                     </div>
                 </div>
 
@@ -357,5 +365,217 @@
     </div>
 
     <script src="js/app.js"></script>
+    <!-- ============== TEST_PROGRESS_START (测试用进度条,发布前请删除此整段) ============== -->
+    <script>
+    (function() {
+      'use strict';
+
+      // 页面 / 场景顺序(与原 app 流程一致)
+      const ITEMS = [
+        { type: 'page',  id: 'opening-page',     label: '开场' },
+        { type: 'page',  id: 'hall-page',        label: '大厅' },
+        { type: 'scene', id: 'scene-intro',      label: '身份介绍' },
+        { type: 'scene', id: 'scene-1',          label: '早晨唤醒' },
+        { type: 'scene', id: 'scene-2-choice',   label: '起床选择' },
+        { type: 'scene', id: 'scene-2a',         label: '微笑出门' },
+        { type: 'scene', id: 'scene-2b',         label: '弹幕自伤' },
+        { type: 'scene', id: 'scene-3a',         label: '工位麻木' },
+        { type: 'scene', id: 'scene-4',          label: '夜晚消逝' },
+        { type: 'scene', id: 'scene-5',          label: '镜子' },
+        { type: 'scene', id: 'transition-scene', label: '过渡' },
+        { type: 'page',  id: 'science-page',     label: '科普' },
+        { type: 'page',  id: 'empathy-page',     label: '共情档案' },
+        { type: 'page',  id: 'resources-page',   label: '资源' },
+      ];
+
+      // 注入样式(避免污染原 css/styles.css)
+      const style = document.createElement('style');
+      style.textContent = `
+        #test-progress-panel {
+          position: fixed;
+          right: 12px;
+          top: 80px;
+          width: 170px;
+          max-height: calc(100vh - 160px);
+          background: rgba(15, 18, 28, 0.94);
+          border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 10px;
+          color: #fff;
+          font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI', sans-serif;
+          font-size: 12px;
+          z-index: 999999;
+          box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+          user-select: none;
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          transition: width 0.2s;
+        }
+        #test-progress-panel .tp-header { padding: 10px 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        #test-progress-panel .tp-title { display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 12px; margin-bottom: 8px; }
+        #test-progress-panel .tp-actions { display: flex; gap: 2px; }
+        #test-progress-panel .tp-btn { cursor: pointer; opacity: 0.6; padding: 2px 6px; border-radius: 4px; font-size: 13px; line-height: 1; }
+        #test-progress-panel .tp-btn:hover { opacity: 1; background: rgba(255,255,255,0.12); }
+        #test-progress-panel .tp-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+        #test-progress-panel .tp-bar-fill { height: 100%; background: linear-gradient(90deg, #4ade80, #22d3ee); width: 0%; transition: width 0.3s ease; }
+        #test-progress-panel .tp-list { max-height: 60vh; overflow-y: auto; padding: 6px 0; }
+        #test-progress-panel .tp-list::-webkit-scrollbar { width: 4px; }
+        #test-progress-panel .tp-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+        #test-progress-panel .tp-item { display: flex; align-items: center; padding: 6px 12px; cursor: pointer; border-left: 2px solid transparent; transition: background 0.15s; }
+        #test-progress-panel .tp-item:hover { background: rgba(255,255,255,0.08); }
+        #test-progress-panel .tp-item.tp-current { background: rgba(74, 222, 128, 0.18); border-left-color: #4ade80; color: #4ade80; font-weight: 600; }
+        #test-progress-panel .tp-item.tp-type-scene { padding-left: 22px; font-size: 11px; }
+        #test-progress-panel .tp-item.tp-type-page { font-weight: 500; }
+        #test-progress-panel .tp-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.25); margin-right: 8px; flex-shrink: 0; transition: background 0.2s; }
+        #test-progress-panel .tp-item.tp-visited .tp-dot { background: rgba(74, 222, 128, 0.6); }
+        #test-progress-panel .tp-item.tp-current .tp-dot { background: #4ade80; box-shadow: 0 0 8px #4ade80; }
+        #test-progress-panel.collapsed .tp-list,
+        #test-progress-panel.collapsed .tp-bar { display: none; }
+        #test-progress-panel.collapsed { width: auto; }
+        @media (max-width: 768px) {
+          #test-progress-panel { width: 140px; right: 6px; top: 60px; font-size: 11px; }
+          #test-progress-panel .tp-item.tp-type-scene { padding-left: 16px; font-size: 10px; }
+        }
+      `;
+      document.head.appendChild(style);
+
+      // 面板 DOM
+      const panel = document.createElement('div');
+      panel.id = 'test-progress-panel';
+      panel.innerHTML = `
+        <div class="tp-header">
+          <div class="tp-title">
+            <span>测试进度 <span class="tp-current-num">0/0</span></span>
+            <div class="tp-actions">
+              <span class="tp-btn tp-refresh" title="刷新并清除已保存的体验记录">↻</span>
+              <span class="tp-btn tp-toggle" title="折叠/展开">−</span>
+            </div>
+          </div>
+          <div class="tp-bar"><div class="tp-bar-fill"></div></div>
+        </div>
+        <div class="tp-list"></div>
+      `;
+      document.body.appendChild(panel);
+
+      const listEl    = panel.querySelector('.tp-list');
+      const barFill   = panel.querySelector('.tp-bar-fill');
+      const numLabel  = panel.querySelector('.tp-current-num');
+      const toggleBtn = panel.querySelector('.tp-toggle');
+      const refreshBt = panel.querySelector('.tp-refresh');
+
+      // 渲染列表项
+      ITEMS.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = 'tp-item tp-type-' + item.type;
+        div.dataset.idx = idx;
+        div.innerHTML = `<span class="tp-dot"></span><span class="tp-label">${idx + 1}. ${item.label}</span>`;
+        div.addEventListener('click', () => jumpTo(idx));
+        listEl.appendChild(div);
+      });
+
+      // 折叠/展开
+      toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        panel.classList.toggle('collapsed');
+        toggleBtn.textContent = panel.classList.contains('collapsed') ? '+' : '−';
+      });
+
+      // 刷新(顺便清掉 localStorage,方便重测)
+      refreshBt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        try { localStorage.removeItem('depressionCompleted'); } catch (_) {}
+        location.reload();
+      });
+
+      // 核心:直接操作 DOM 跳转(不调用原 switchPage/switchScene,避免过渡等待)
+      function jumpTo(idx) {
+        const item = ITEMS[idx];
+        if (!item) return;
+
+        // 强制结束可能的过渡状态
+        if (typeof appState !== 'undefined') {
+          appState.isTransitioning = false;
+          appState.sceneReady = false;
+        }
+        if (typeof hideContinueButton === 'function') {
+          try { hideContinueButton(); } catch (_) {}
+        }
+
+        // 清空所有 page / scene 状态
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active', 'fade-out'));
+        document.querySelectorAll('.scene').forEach(s => s.classList.remove('active', 'fade-out'));
+
+        if (item.type === 'page') {
+          const target = document.getElementById(item.id);
+          if (target) {
+            target.classList.add('active');
+            if (typeof appState !== 'undefined') {
+              appState.currentPage = item.id.replace('-page', '');
+            }
+          }
+        } else {
+          // 场景:先激活 script-page,再激活目标场景
+          const scriptPage = document.getElementById('script-page');
+          if (scriptPage) scriptPage.classList.add('active');
+          if (typeof appState !== 'undefined') {
+            appState.currentPage = 'script';
+          }
+          const target = document.getElementById(item.id);
+          if (target) {
+            target.classList.add('active');
+            if (typeof appState !== 'undefined') {
+              appState.currentScene = item.id;
+            }
+            // 重新初始化场景(部分场景内部有"已初始化"守卫,可能需要刷新页面才能重测)
+            if (typeof initScene === 'function') {
+              try { initScene(item.id); } catch (err) { console.warn('initScene fail:', err); }
+            }
+          }
+        }
+
+        updateHighlight();
+      }
+
+      // 获取当前所在项的索引
+      function getCurrentIdx() {
+        const activeScene = document.querySelector('.scene.active');
+        if (activeScene) {
+          for (let i = 0; i < ITEMS.length; i++) {
+            if (ITEMS[i].id === activeScene.id) return i;
+          }
+        }
+        const activePage = document.querySelector('.page.active');
+        if (activePage) {
+          for (let i = 0; i < ITEMS.length; i++) {
+            if (ITEMS[i].id === activePage.id) return i;
+          }
+        }
+        return 0;
+      }
+
+      // 更新高亮 + 进度条
+      function updateHighlight() {
+        const cur = getCurrentIdx();
+        panel.querySelectorAll('.tp-item').forEach((el, idx) => {
+          el.classList.toggle('tp-current', idx === cur);
+          el.classList.toggle('tp-visited', idx < cur);
+        });
+        const total = ITEMS.length;
+        barFill.style.width = ((cur + 1) / total * 100) + '%';
+        numLabel.textContent = (cur + 1) + '/' + total;
+      }
+
+      // 监听 class 变化自动更新
+      const observer = new MutationObserver(updateHighlight);
+      observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class'],
+        subtree: true
+      });
+
+      // 初始一次
+      setTimeout(updateHighlight, 100);
+    })();
+    </script>
+    <!-- ============== TEST_PROGRESS_END ============== -->
 </body>
 </html>

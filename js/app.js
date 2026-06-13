@@ -41,7 +41,9 @@ function checkCompletionStatus() {
 function startOpeningAnimation() {
     const line1 = document.getElementById('text-line-1');
     const line2 = document.getElementById('text-line-2');
-    
+    const openingContent = document.querySelector('.opening-content');
+    const openingButtons = document.getElementById('opening-buttons');
+
     setTimeout(() => {
         typeWriter(line1, '你每天都会遇到很多人，', 80, () => {
             line1.classList.add('visible');
@@ -49,8 +51,8 @@ function startOpeningAnimation() {
                 typeWriter(line2, '但你不知道他们心里正在经历什么。', 80, () => {
                     line2.classList.add('visible');
                     setTimeout(() => {
-                        document.getElementById('ready-btn').style.display = 'inline-block';
-                        document.getElementById('info-btn').style.display = 'inline-block';
+                        openingContent.classList.add('settled');
+                        openingButtons.classList.add('visible');
                     }, 1000);
                 });
             }, 600);
@@ -146,53 +148,75 @@ function bindEvents() {
     });
 }
 
-// 页面切换函数 - 带淡入淡出效果
+// 页面切换函数 - 先淡出旧页再淡入新页，去掉中间会闪背景的空白
 function switchPage(pageId) {
     if (appState.isTransitioning) return;
     appState.isTransitioning = true;
-    
+
     const currentPage = document.querySelector('.page.active');
     const nextPage = document.getElementById(pageId);
-    
+
+    if (currentPage === nextPage) {
+        appState.isTransitioning = false;
+        return;
+    }
+
     if (currentPage) {
+        // 旧页淡出
         currentPage.classList.add('fade-out');
         setTimeout(() => {
+            // 旧页淡出完成，立即换上新页（无空隙，避免背景闪烁）
             currentPage.classList.remove('active', 'fade-out');
+            nextPage.classList.add('active');
+            setTimeout(() => {
+                appState.isTransitioning = false;
+                appState.currentPage = pageId.replace('-page', '');
+            }, 500);
         }, 500);
-    }
-    
-    setTimeout(() => {
+    } else {
         nextPage.classList.add('active');
         setTimeout(() => {
             appState.isTransitioning = false;
             appState.currentPage = pageId.replace('-page', '');
         }, 500);
-    }, 800);
+    }
 }
 
-// 场景切换函数 - 带淡入淡出效果
+// 场景切换函数 - 先淡出旧场景再淡入新场景，去掉中间会闪背景的空白
 function switchScene(sceneId, callback) {
     if (appState.isTransitioning) return;
     appState.isTransitioning = true;
-    
+
     const currentScene = document.querySelector('.scene.active');
     const nextScene = document.getElementById(sceneId);
-    
+
+    if (currentScene === nextScene) {
+        appState.isTransitioning = false;
+        if (callback) callback();
+        return;
+    }
+
     if (currentScene) {
+        // 旧场景淡出
         currentScene.classList.add('fade-out');
         setTimeout(() => {
+            // 旧场景淡出完成，立即换上新场景（无空隙，避免背景闪烁）
             currentScene.classList.remove('active', 'fade-out');
+            nextScene.classList.add('active');
+            setTimeout(() => {
+                appState.isTransitioning = false;
+                initScene(sceneId);
+                if (callback) callback();
+            }, 500);
         }, 500);
-    }
-    
-    setTimeout(() => {
+    } else {
         nextScene.classList.add('active');
         setTimeout(() => {
             appState.isTransitioning = false;
             initScene(sceneId);
             if (callback) callback();
         }, 500);
-    }, 800);
+    }
 }
 
 // 前往大厅
@@ -320,124 +344,281 @@ function typewriterIntro(element, text, delay, callback) {
     type();
 }
 
+// 睁眼：两片眼皮路径 d 的控制点 Y 从 50（平直闭合）插值到 15/85（弧形睁开）
+// 与 CSS 的 translateY 同步走 3s：曲线慢慢成形 + 眼皮一起退场
+function animateEyeOpening(duration = 3000) {
+    const topLid = document.querySelector('.eye-lid-path-top');
+    const bottomLid = document.querySelector('.eye-lid-path-bottom');
+    if (!topLid || !bottomLid) return;
+
+    // 重入场景时，先把上一次还在跑的 rAF 停掉，避免互相覆盖
+    if (animateEyeOpening._rafId) {
+        cancelAnimationFrame(animateEyeOpening._rafId);
+    }
+
+    // 先重置为闭合态：控制点 y=50，曲线退化成 y=50 的水平线，
+    // 两片眼皮严丝合缝盖满中线，整屏纯黑、无弧形
+    const closedTop = 'M 0,0 L 100,0 L 100,50 C 80,50 20,50 0,50 Z';
+    const closedBottom = 'M 0,50 C 20,50 80,50 100,50 L 100,100 L 0,100 Z';
+    topLid.setAttribute('d', closedTop);
+    bottomLid.setAttribute('d', closedBottom);
+
+    const startTime = performance.now();
+
+    function step(now) {
+        const elapsed = now - startTime;
+        const t = Math.min(elapsed / duration, 1);
+        // 与 CSS transition 同款 cubic-bezier(0.4, 0, 0.2, 1) 的近似
+        const eased = 1 - Math.pow(1 - t, 3);
+
+        // 上眼皮控制点 y: 50→15（向下凹得越来越深）
+        // 下眼皮控制点 y: 50→85（向上凸得越来越高）
+        const topY = 50 - 35 * eased;
+        const bottomY = 50 + 35 * eased;
+
+        // 拼路径：C x1,y1 x2,y2 x,y —— 两个控制点共享同一个 Y
+        topLid.setAttribute('d', `M 0,0 L 100,0 L 100,50 C 80,${topY} 20,${topY} 0,50 Z`);
+        bottomLid.setAttribute('d', `M 0,50 C 20,${bottomY} 80,${bottomY} 100,50 L 100,100 L 0,100 Z`);
+
+        if (t < 1) {
+            animateEyeOpening._rafId = requestAnimationFrame(step);
+        } else {
+            animateEyeOpening._rafId = null;
+        }
+    }
+
+    animateEyeOpening._rafId = requestAnimationFrame(step);
+}
+
 // 初始化场景1
 function initScene1() {
     appState.sceneReady = false;
-    
+
+    // 同时启动睁眼 + 雾气淡入，都是 3s；眼睛完全睁开时雾气已满格
     setTimeout(() => {
         const eyeLids = document.getElementById('wake-up-eyes');
         if (eyeLids) {
             eyeLids.classList.add('opening');
         }
-    }, 800);
-    
-    setTimeout(() => {
+        // 路径 d 同步从平直闭合态插值到弧形睁开态
+        animateEyeOpening(3000);
         initFogCanvas();
-    }, 2500);
+    }, 800);
 }
 
-// 初始化雾气画布
+// 初始化雾气画布（全屏刮刮乐）
 function initFogCanvas() {
     const canvas = document.getElementById('fog-canvas');
     if (!canvas) return;
     
     const ctx = canvas.getContext('2d');
+    const TARGET_PERCENT = 50;    // 擦除 50% 触发自动清除
+    const BRUSH_RADIUS = 75;      // 大笔刷半径
+    const SOFT_EDGE = 22;         // 笔刷柔边宽度
+    const GRID_SIZE = 50;         // 面积采样网格 50x50
+    const STEP = 6;               // 插值步长（px）
+    
     let isDrawing = false;
-    let clearedPercent = 0;
-    const targetClear = 60;
+    let lastX = null, lastY = null;
+    let finished = false;
+    const totalCells = GRID_SIZE * GRID_SIZE;
+    const scratchedMask = new Uint8Array(totalCells);
+    
+    // 重置状态（支持重复进入场景）
+    canvas.classList.remove('cleared', 'active');
+    scratchedMask.fill(0);
     
     function resizeCanvas() {
-        const rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width;
-        canvas.height = rect.height;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
         drawFog();
     }
     
     function drawFog() {
         if (!ctx) return;
-        const gradient = ctx.createRadialGradient(
-            canvas.width / 2, canvas.height / 2, 0,
-            canvas.width / 2, canvas.height / 2, canvas.width * 0.7
-        );
-        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
-        gradient.addColorStop(0.5, 'rgba(200, 200, 220, 0.6)');
-        gradient.addColorStop(1, 'rgba(150, 150, 180, 0.7)');
+        const w = canvas.width;
+        const h = canvas.height;
         
         ctx.globalCompositeOperation = 'source-over';
-        ctx.fillStyle = 'rgba(180, 190, 210, 0.85)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, w, h);
         
-        for (let i = 0; i < 80; i++) {
-            const x = Math.random() * canvas.width;
-            const y = Math.random() * canvas.height;
-            const radius = Math.random() * 30 + 10;
-            const fogGrad = ctx.createRadialGradient(x, y, 0, x, y, radius);
-            fogGrad.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
-            fogGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-            ctx.fillStyle = fogGrad;
+        // 底层深灰蓝渐变
+        const baseGrad = ctx.createLinearGradient(0, 0, 0, h);
+        baseGrad.addColorStop(0, 'rgba(140, 150, 175, 0.92)');
+        baseGrad.addColorStop(0.5, 'rgba(165, 170, 190, 0.95)');
+        baseGrad.addColorStop(1, 'rgba(120, 130, 155, 0.92)');
+        ctx.fillStyle = baseGrad;
+        ctx.fillRect(0, 0, w, h);
+        
+        // 大量半透明白色雾团（云感）
+        for (let i = 0; i < 100; i++) {
+            const x = Math.random() * w;
+            const y = Math.random() * h;
+            const radius = Math.random() * 90 + 30;
+            const grad = ctx.createRadialGradient(x, y, 0, x, y, radius);
+            grad.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
+            grad.addColorStop(0.6, 'rgba(255, 255, 255, 0.18)');
+            grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+        }
+        
+        // 深色雾团增加层次
+        for (let i = 0; i < 45; i++) {
+            const x = Math.random() * w;
+            const y = Math.random() * h;
+            const radius = Math.random() * 130 + 60;
+            const grad = ctx.createRadialGradient(x, y, 0, x, y, radius);
+            grad.addColorStop(0, 'rgba(90, 100, 130, 0.35)');
+            grad.addColorStop(1, 'rgba(90, 100, 130, 0)');
+            ctx.fillStyle = grad;
             ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
         }
     }
     
-    function eraseFog(x, y) {
+    function eraseAt(x, y) {
         if (!ctx) return;
         ctx.globalCompositeOperation = 'destination-out';
+        const inner = Math.max(1, BRUSH_RADIUS - SOFT_EDGE);
+        const grad = ctx.createRadialGradient(x, y, inner, x, y, BRUSH_RADIUS);
+        grad.addColorStop(0, 'rgba(0, 0, 0, 1)');
+        grad.addColorStop(0.7, 'rgba(0, 0, 0, 1)');
+        grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = grad;
         ctx.beginPath();
-        ctx.arc(x, y, 35, 0, Math.PI * 2);
+        ctx.arc(x, y, BRUSH_RADIUS, 0, Math.PI * 2);
         ctx.fill();
         
-        clearedPercent = Math.min(100, clearedPercent + 0.5);
-        if (clearedPercent >= targetClear) {
-            canvas.classList.add('cleared');
-            document.getElementById('wake-hint').classList.add('hidden');
-            enableSlider();
+        markScratched(x, y);
+    }
+    
+    function markScratched(cx, cy) {
+        const cellW = canvas.width / GRID_SIZE;
+        const cellH = canvas.height / GRID_SIZE;
+        const r = BRUSH_RADIUS;
+        const minX = Math.max(0, Math.floor((cx - r) / cellW));
+        const maxX = Math.min(GRID_SIZE - 1, Math.floor((cx + r) / cellW));
+        const minY = Math.max(0, Math.floor((cy - r) / cellH));
+        const maxY = Math.min(GRID_SIZE - 1, Math.floor((cy + r) / cellH));
+        
+        for (let yi = minY; yi <= maxY; yi++) {
+            for (let xi = minX; xi <= maxX; xi++) {
+                scratchedMask[yi * GRID_SIZE + xi] = 1;
+            }
         }
     }
     
+    function checkProgress() {
+        if (finished) return;
+        let scratched = 0;
+        for (let i = 0; i < totalCells; i++) {
+            if (scratchedMask[i]) scratched++;
+        }
+        const percent = (scratched / totalCells) * 100;
+        if (percent >= TARGET_PERCENT) {
+            triggerAutoClear();
+        }
+    }
+    
+    function triggerAutoClear() {
+        finished = true;
+        canvas.classList.add('cleared');
+        canvas.classList.remove('active');
+        detachEvents();
+        const hint = document.getElementById('wake-hint');
+        if (hint) hint.classList.add('hidden');
+        // 等雾气缓慢散尽（与 .cleared 过渡时长一致）再启用滑块关闹钟
+        setTimeout(enableSlider, 5000);
+    }
+    
     function getPos(e) {
-        const rect = canvas.getBoundingClientRect();
         let clientX, clientY;
-        if (e.touches) {
+        if (e.touches && e.touches.length) {
             clientX = e.touches[0].clientX;
             clientY = e.touches[0].clientY;
         } else {
             clientX = e.clientX;
             clientY = e.clientY;
         }
-        return {
-            x: (clientX - rect.left) * (canvas.width / rect.width),
-            y: (clientY - rect.top) * (canvas.height / rect.height)
-        };
+        return { x: clientX, y: clientY };
     }
     
     function startDraw(e) {
+        if (finished) return;
         e.preventDefault();
         isDrawing = true;
         const pos = getPos(e);
-        eraseFog(pos.x, pos.y);
+        lastX = pos.x;
+        lastY = pos.y;
+        eraseAt(pos.x, pos.y);
+        checkProgress();
     }
     
     function draw(e) {
-        if (!isDrawing) return;
+        if (!isDrawing || finished) return;
         e.preventDefault();
         const pos = getPos(e);
-        eraseFog(pos.x, pos.y);
+        // 插值连线，避免快速移动时出现断点
+        const dx = pos.x - lastX;
+        const dy = pos.y - lastY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const steps = Math.max(1, Math.ceil(dist / STEP));
+        for (let i = 1; i <= steps; i++) {
+            const t = i / steps;
+            const x = lastX + dx * t;
+            const y = lastY + dy * t;
+            eraseAt(x, y);
+        }
+        lastX = pos.x;
+        lastY = pos.y;
+        checkProgress();
     }
     
     function endDraw() {
+        if (!isDrawing) return;
         isDrawing = false;
+        lastX = lastY = null;
+        checkProgress();
     }
     
-    canvas.addEventListener('mousedown', startDraw);
-    canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseup', endDraw);
-    canvas.addEventListener('mouseleave', endDraw);
-    canvas.addEventListener('touchstart', startDraw, { passive: false });
-    canvas.addEventListener('touchmove', draw, { passive: false });
-    canvas.addEventListener('touchend', endDraw);
+    function onPointerDown(e) { startDraw(e); }
+    function onPointerMove(e) { draw(e); }
+    function onPointerUp() { endDraw(); }
+    function onPointerLeave() { endDraw(); }
     
-    setTimeout(resizeCanvas, 100);
+    function attachEvents() {
+        canvas.addEventListener('mousedown', onPointerDown);
+        canvas.addEventListener('mousemove', onPointerMove);
+        canvas.addEventListener('mouseleave', onPointerLeave);
+        canvas.addEventListener('touchstart', onPointerDown, { passive: false });
+        canvas.addEventListener('touchmove', onPointerMove, { passive: false });
+        canvas.addEventListener('touchend', onPointerUp);
+        canvas.addEventListener('touchcancel', onPointerUp);
+        // 兜底：mouseup/touchend 绑在 window 防止移出画布卡住
+        window.addEventListener('mouseup', onPointerUp);
+        window.addEventListener('touchend', onPointerUp);
+    }
+    
+    function detachEvents() {
+        canvas.removeEventListener('mousedown', onPointerDown);
+        canvas.removeEventListener('mousemove', onPointerMove);
+        canvas.removeEventListener('mouseleave', onPointerLeave);
+        canvas.removeEventListener('touchstart', onPointerDown);
+        canvas.removeEventListener('touchmove', onPointerMove);
+        canvas.removeEventListener('touchend', onPointerUp);
+        canvas.removeEventListener('touchcancel', onPointerUp);
+        window.removeEventListener('mouseup', onPointerUp);
+        window.removeEventListener('touchend', onPointerUp);
+    }
+    
+    resizeCanvas();
+    attachEvents();
     window.addEventListener('resize', resizeCanvas);
+    
+    // 触发淡入（下一帧，避免初次绘制闪烁）
+    requestAnimationFrame(() => {
+        canvas.classList.add('active');
+    });
 }
 
 // 启用滑动关闭闹钟
@@ -451,6 +632,7 @@ function enableSlider() {
     const maxSlide = 110;
     let hasMoved = false;
     let resistanceOffset = 0;
+    let slidToEnd = false; // 防止在达到 maxSlide 后多次触发 switchToWallpaper
     
     function getPos(e) {
         if (e.touches) {
@@ -480,10 +662,11 @@ function enableSlider() {
             currentX = Math.max(0, actualDelta);
             sliderThumb.style.transform = `translateX(calc(-50% + ${currentX}px))`;
             hasMoved = true;
-        } else if (delta >= maxSlide) {
+        } else if (delta >= maxSlide && !slidToEnd) {
+            slidToEnd = true;
             sliderThumb.style.transform = `translateX(calc(-50% + ${maxSlide}px))`;
-            // 关闭闹钟后开始震动1.5秒
-            triggerShake();
+            // 关闭闹钟：先切换为经典 iPhone 壁纸，稍作停留再开始震动
+            switchToWallpaper();
         }
     }
     
@@ -506,8 +689,36 @@ function enableSlider() {
     document.addEventListener('touchend', endDrag);
 }
 
+// 切换为经典 iPhone 壁纸（闹钟关闭后）
+function switchToWallpaper() {
+    const phoneScreen = document.getElementById('phone-screen');
+    const sliderArea = document.getElementById('phone-slider-area');
+    if (!phoneScreen) return;
+    
+    // 锁定滑块，避免后续误触
+    if (sliderArea) sliderArea.style.pointerEvents = 'none';
+    
+    // 同步更新壁纸上的时间（在原闹钟时间 +1 分钟）
+    const wallpaperTime = document.getElementById('wallpaper-time');
+    if (wallpaperTime) {
+        const statusTime = document.getElementById('phone-status-time');
+        wallpaperTime.textContent = statusTime ? statusTime.textContent : '07:01';
+    }
+    
+    // 关闭闹钟界面，渐入壁纸
+    phoneScreen.classList.remove('alarm-active');
+    
+    // 给用户一点时间看清壁纸，再开始震动
+    setTimeout(() => {
+        triggerShake();
+    }, 900);
+}
+
 // 触发震动效果（闹钟关闭后）
+let shakeTriggered = false;
 function triggerShake() {
+    if (shakeTriggered) return;
+    shakeTriggered = true;
     const sceneContent = document.getElementById('scene-1-content');
     if (sceneContent) {
         sceneContent.classList.add('shaking');
@@ -526,7 +737,10 @@ function setupScene1Events() {
 }
 
 // 完成场景1
+let scene1Completed = false;
 function completeScene1() {
+    if (scene1Completed) return;
+    scene1Completed = true;
     showInnerMonologue('scene1-monologue', '连起床都需要这么大的力气...');
     applyInnerWorldEffects();
     
@@ -592,10 +806,11 @@ function initScene2A() {
         if (isHolding && smileLevel < 100) {
             smileLevel = Math.min(100, smileLevel + 1.5);
             
-            // 更新嘴巴弧度：从悲伤(向下弯)到微笑(向上弯)
-            // 起点终点 Y=20，控制点 Y 在 30（悲伤）到 5（微笑）之间
-            // 控制点 Y < 起止点 Y → 向上弯（微笑）
-            const curveY = 30 - (smileLevel / 100) * 25;
+            // 更新嘴巴弧度：从悲伤(嘴角向下，∩ 形)到微笑(嘴角向上，⌣ 形)
+            // 起点终点 Y=20，控制点 Y 在 5（悲伤/∩）到 30（微笑/⌣）之间
+            // SVG 中 Y 向下：控制点 Y < 起止点 Y → 曲线向上凸 = 悲伤 ∩
+            //                   控制点 Y > 起止点 Y → 曲线向下凹 = 微笑 ⌣
+            const curveY = 5 + (smileLevel / 100) * 25;
             mouthPath.setAttribute('d', `M 10 20 Q 40 ${curveY} 70 20`);
             
             // 更新提示文字
@@ -620,20 +835,8 @@ function initScene2A() {
                 clearInterval(updateInterval);
                 completeScene2A();
             }
-        } else if (!isHolding && smileLevel > 0) {
-            // 松手时，微笑慢慢消退
-            smileLevel = Math.max(0, smileLevel - 0.5);
-            const curveY = 30 - (smileLevel / 100) * 25;
-            mouthPath.setAttribute('d', `M 10 20 Q 40 ${curveY} 70 20`);
-            
-            if (smileLevel === 0) {
-                // 重置心理描写
-                psychologyText.classList.remove('visible');
-                psychologyText.textContent = '';
-                currentPsychologyIndex = 0;
-                document.getElementById('emotion-hint').textContent = '点击并按住面具，让它露出微笑';
-            }
         }
+        // 松手后不再做任何事：smileLevel 保持当前值，嘴角弧度定格
     }
     
     const startHold = (e) => {
@@ -660,8 +863,8 @@ function resetFaceEmotion() {
     const psychologyText = document.getElementById('psychology-text');
     const completeHint = document.getElementById('complete-hint');
     
-    // 初始状态：悲伤（控制点 Y=30 > 起止点 Y=20，向下弯）
-    mouthPath.setAttribute('d', 'M 10 20 Q 40 30 70 20');
+    // 初始状态：悲伤（嘴角向下，∩ 形；控制点 Y=5 < 起止点 Y=20，曲线向上凸）
+    mouthPath.setAttribute('d', 'M 10 20 Q 40 5 70 20');
     psychologyText.classList.remove('visible');
     psychologyText.textContent = '';
     completeHint.classList.remove('visible');
@@ -737,20 +940,12 @@ const MAX_CLICKS = 20;
 function initScene3A() {
     if (scene3AInitialized) return;
     scene3AInitialized = true;
-    
+
     clickCount = 0;
-    
-    // 显示自定义鼠标
-    const cursor = document.getElementById('custom-cursor');
-    cursor.classList.add('active');
-    
-    // 鼠标跟随
-    document.addEventListener('mousemove', handleCursorMove);
-    document.addEventListener('touchmove', handleCursorTouchMove, { passive: false });
-    
+
     // 显示第一个按钮
     moveTaskButton();
-    
+
     // 任务按钮点击事件
     const taskButton = document.getElementById('task-button');
     taskButton.addEventListener('click', handleTaskClick);
@@ -758,23 +953,9 @@ function initScene3A() {
         e.preventDefault();
         handleTaskClick();
     }, { passive: false });
-    
+
     // 显示内心独白
     showInnerMonologue('scene3a-monologue', '我在做这些事，但好像不是我做的。我只是一个执行程序，没有意义，也没有尽头。');
-}
-
-function handleCursorMove(e) {
-    const cursor = document.getElementById('custom-cursor');
-    if (!cursor) return;
-    cursor.style.left = e.clientX + 'px';
-    cursor.style.top = e.clientY + 'px';
-}
-
-function handleCursorTouchMove(e) {
-    const cursor = document.getElementById('custom-cursor');
-    if (!cursor || !e.touches[0]) return;
-    cursor.style.left = e.touches[0].clientX + 'px';
-    cursor.style.top = e.touches[0].clientY + 'px';
 }
 
 function moveTaskButton() {
@@ -856,16 +1037,12 @@ function handleTaskClick() {
 }
 
 function completeScene3A() {
-    // 隐藏自定义鼠标
-    const cursor = document.getElementById('custom-cursor');
-    if (cursor) cursor.classList.remove('active');
-    
     // 隐藏任务按钮和计数器
     const taskButton = document.getElementById('task-button');
     if (taskButton) taskButton.style.display = 'none';
     const counter = document.getElementById('click-counter');
     if (counter) counter.style.display = 'none';
-    
+
     // 显示继续按钮
     setTimeout(() => {
         showContinueButton(() => {
