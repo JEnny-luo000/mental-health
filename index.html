@@ -273,12 +273,143 @@
                     </div>
                 </div>
 
-                <!-- 过渡动画 -->
+                <!-- 过渡动画：溺水下沉 → 渐黑 -->
                 <div id="transition-scene" class="scene">
                     <div class="transition-content">
-                        <div class="light-spots"></div>
+                        <div class="drown-water"></div>
+                        <div class="drown-figure" id="drown-figure">
+                            <svg viewBox="0 0 80 160" class="drown-figure-svg">
+                                <!-- 头 -->
+                                <circle cx="40" cy="22" r="16" fill="rgba(20,28,40,0.85)"/>
+                                <!-- 躯干 -->
+                                <path d="M 28 40 L 52 40 L 56 100 Q 56 110 50 110 L 30 110 Q 24 110 24 100 Z"
+                                      fill="rgba(20,28,40,0.85)"/>
+                                <!-- 双臂无力下垂 -->
+                                <path d="M 30 46 Q 18 70 22 100" stroke="rgba(20,28,40,0.85)" stroke-width="7" fill="none" stroke-linecap="round"/>
+                                <path d="M 50 46 Q 62 70 58 100" stroke="rgba(20,28,40,0.85)" stroke-width="7" fill="none" stroke-linecap="round"/>
+                                <!-- 双腿 -->
+                                <path d="M 34 110 Q 32 130 28 150" stroke="rgba(20,28,40,0.85)" stroke-width="9" fill="none" stroke-linecap="round"/>
+                                <path d="M 46 110 Q 48 130 52 150" stroke="rgba(20,28,40,0.85)" stroke-width="9" fill="none" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="drown-bubbles" id="drown-bubbles"></div>
+                        <div class="drown-fade-overlay" id="drown-fade-overlay"></div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- 角色切换提示弹窗：黑屏后显示 -->
+        <div id="role-switch-modal" class="modal role-switch-modal">
+            <div class="modal-content role-switch-content">
+                <div class="role-switch-icon">🤝</div>
+                <h2>刚才你走进了 ta 的内心</h2>
+                <p class="role-switch-desc">现在，让我们换个身份——</p>
+                <p class="role-switch-question">你愿意成为<strong> ta 身边的那个人</strong>吗？</p>
+                <div class="role-switch-detail">
+                    <span class="role-tag role-old">你刚才扮演：<b>患者</b></span>
+                    <span class="role-arrow">→</span>
+                    <span class="role-tag role-new">即将扮演：<b>陪伴者（朋友）</b></span>
+                </div>
+                <div class="role-switch-buttons">
+                    <button id="start-companion-btn" class="btn btn-primary">开始陪伴者练习</button>
+                    <button id="skip-companion-btn" class="btn btn-secondary">先到这里吧</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 正面回溯剧本（陪伴者练习室） -->
+        <div id="positive-script-page" class="page">
+            <div class="positive-container" id="positive-container">
+
+                <!-- 正面剧本引导：身份告知 -->
+                <div id="pos-scene-intro" class="scene pos-scene active">
+                    <div class="pos-intro-content">
+                        <div class="pos-intro-icon">💬</div>
+                        <h2>从现在开始，你是 ta 的朋友</h2>
+                        <p class="pos-intro-line">你刚刚在水面之上目睹 ta 沉入水底。</p>
+                        <p class="pos-intro-line">现在请回到岸上——</p>
+                        <p class="pos-intro-line pos-intro-strong">学习如何成为 ta 身边那个人。</p>
+                    </div>
+                </div>
+
+                <!-- 教学场景 1：如何安静地听 -->
+                <div id="pos-scene-1" class="scene pos-scene">
+                    <div class="pos-teaching-header">
+                        <span class="pos-step-tag">第 1 课</span>
+                        <h2>如何安静地听</h2>
+                        <p class="pos-subtitle">不打断 · 不评判 · 不急着给建议</p>
+                    </div>
+                    <div class="pos-dialogue-stage" id="pos-scene-1-stage">
+                        <!-- 动态注入对话轮次 -->
+                    </div>
+                    <div class="pos-teaching-footer">
+                        <button id="pos-scene-1-next" class="btn btn-primary pos-next-btn">继续 →</button>
+                    </div>
+                </div>
+
+                <!-- 教学场景 2：如何回应"我没事" -->
+                <div id="pos-scene-2" class="scene pos-scene">
+                    <div class="pos-teaching-header">
+                        <span class="pos-step-tag">第 2 课</span>
+                        <h2>当 ta 说"我没事"</h2>
+                        <p class="pos-subtitle">哪种回应最让 ta 愿意继续说下去？</p>
+                    </div>
+                    <div class="pos-scenario-card">
+                        <p>📱 朋友在微信上回你「我没事」。<br/>ta 平时话很多，今天却突然很简短。</p>
+                    </div>
+                    <div class="pos-choices" id="pos-scene-2-choices">
+                        <div class="pos-choice pos-choice-bad" data-choice="A">
+                            <div class="pos-choice-label">A</div>
+                            <div class="pos-choice-text">"别装了，我看得出你不开心。"</div>
+                        </div>
+                        <div class="pos-choice pos-choice-bad" data-choice="B">
+                            <div class="pos-choice-label">B</div>
+                            <div class="pos-choice-text">"没事就好！周末出来玩吧！"</div>
+                        </div>
+                        <div class="pos-choice pos-choice-good" data-choice="C">
+                            <div class="pos-choice-label">C</div>
+                            <div class="pos-choice-text">"嗯，那我就放心了。不过如果你哪天不想'没事'了，随时找我。"</div>
+                        </div>
+                    </div>
+                    <div class="pos-choice-feedback" id="pos-scene-2-feedback" style="display:none;"></div>
+                </div>
+
+                <!-- 实战场景 3：与 AI 聊天 -->
+                <div id="pos-scene-3" class="scene pos-scene pos-chat-scene">
+                    <div class="pos-chat-profile">
+                        <div class="pos-chat-avatar">🧑</div>
+                        <div class="pos-chat-info">
+                            <div class="pos-chat-name">你的朋友</div>
+                            <div class="pos-chat-meta">25 岁 · 互联网公司运营</div>
+                        </div>
+                        <div class="pos-chat-hint">真实聊天练习</div>
+                    </div>
+                    <div class="pos-chat-messages" id="pos-chat-messages">
+                        <!-- 动态注入消息 -->
+                    </div>
+                    <div class="pos-chat-input-bar">
+                        <input type="text" id="pos-chat-input" class="pos-chat-input"
+                               placeholder="输入你想说的话..." maxlength="500" autocomplete="off"/>
+                        <button id="pos-chat-send" class="btn btn-primary pos-chat-send">发送</button>
+                        <button id="pos-chat-end" class="btn btn-secondary pos-chat-end">结束对话</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 正面剧本完成页 -->
+        <div id="positive-complete-page" class="page">
+            <div class="positive-complete-content">
+                <div class="positive-complete-icon">🌱</div>
+                <h1>你刚刚成为了 ta 身边的那个人</h1>
+                <p class="positive-complete-sub">不需要完美的话术。陪着、听着、不离开——<br/>这件事本身就已经是答案。</p>
+                <div class="positive-complete-summary" id="positive-complete-summary">
+                    <div class="summary-item"><span class="summary-num" id="summary-rounds">0</span><span class="summary-label">轮对话</span></div>
+                    <div class="summary-item"><span class="summary-num" id="summary-messages">0</span><span class="summary-label">条消息</span></div>
+                </div>
+                <button id="positive-back-btn" class="btn btn-primary">回到主流程</button>
             </div>
         </div>
 
@@ -382,7 +513,13 @@
         { type: 'scene', id: 'scene-3a',         label: '工位麻木' },
         { type: 'scene', id: 'scene-4',          label: '夜晚消逝' },
         { type: 'scene', id: 'scene-5',          label: '镜子' },
-        { type: 'scene', id: 'transition-scene', label: '过渡' },
+        { type: 'scene', id: 'transition-scene', label: '溺水过渡' },
+        { type: 'page',  id: 'positive-script-page',  label: '正面剧本' },
+        { type: 'scene', id: 'pos-scene-intro',       label: '正面身份' },
+        { type: 'scene', id: 'pos-scene-1',           label: '教学1：倾听' },
+        { type: 'scene', id: 'pos-scene-2',           label: '教学2：回应' },
+        { type: 'scene', id: 'pos-scene-3',           label: 'AI 实战' },
+        { type: 'page',  id: 'positive-complete-page',label: '正面完成' },
         { type: 'page',  id: 'science-page',     label: '科普' },
         { type: 'page',  id: 'empathy-page',     label: '共情档案' },
         { type: 'page',  id: 'resources-page',   label: '资源' },
@@ -513,11 +650,13 @@
             }
           }
         } else {
-          // 场景:先激活 script-page,再激活目标场景
-          const scriptPage = document.getElementById('script-page');
+          // 场景:先激活对应 page,再激活目标场景
+          let pageId = 'script-page';
+          if (item.id && item.id.startsWith('pos-')) pageId = 'positive-script-page';
+          const scriptPage = document.getElementById(pageId);
           if (scriptPage) scriptPage.classList.add('active');
           if (typeof appState !== 'undefined') {
-            appState.currentPage = 'script';
+            appState.currentPage = pageId.replace('-page', '');
           }
           const target = document.getElementById(item.id);
           if (target) {
@@ -525,8 +664,10 @@
             if (typeof appState !== 'undefined') {
               appState.currentScene = item.id;
             }
-            // 重新初始化场景(部分场景内部有"已初始化"守卫,可能需要刷新页面才能重测)
-            if (typeof initScene === 'function') {
+            // 正面场景用 switchPosScene 重新触发 init
+            if (item.id && item.id.startsWith('pos-') && typeof switchPosScene === 'function') {
+              try { switchPosScene(item.id); } catch (err) { console.warn('switchPosScene fail:', err); }
+            } else if (typeof initScene === 'function') {
               try { initScene(item.id); } catch (err) { console.warn('initScene fail:', err); }
             }
           }

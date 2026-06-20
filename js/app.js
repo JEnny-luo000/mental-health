@@ -4,7 +4,9 @@ const appState = {
     currentScene: 1,
     depressionCompleted: false,
     sceneReady: false,
-    isTransitioning: false
+    isTransitioning: false,
+    positiveScriptStarted: false,
+    positiveScriptCompleted: false
 };
 
 // DOM 元素引用
@@ -34,6 +36,11 @@ function checkCompletionStatus() {
     if (completed === 'true') {
         appState.depressionCompleted = true;
         document.getElementById('completed-badge').style.display = 'block';
+    }
+
+    const posCompleted = localStorage.getItem('positiveScriptCompleted');
+    if (posCompleted === 'true') {
+        appState.positiveScriptCompleted = true;
     }
 }
 
@@ -135,16 +142,28 @@ function bindEvents() {
     document.getElementById('science-next-btn').addEventListener('click', () => {
         switchPage('empathy-page');
     });
-    
+
     // 共情档案页事件
     document.getElementById('share-poster-btn').addEventListener('click', generatePoster);
     document.getElementById('go-to-resources-btn').addEventListener('click', () => {
         switchPage('resources-page');
     });
-    
+
     // 资源页事件
     document.getElementById('back-to-hall-btn').addEventListener('click', () => {
         switchPage('hall-page');
+    });
+
+    // 角色切换弹窗
+    document.getElementById('start-companion-btn').addEventListener('click', startPositiveScript);
+    document.getElementById('skip-companion-btn').addEventListener('click', () => {
+        hideRoleSwitchModal();
+        completeExperience();
+    });
+
+    // 正面剧本完成页
+    document.getElementById('positive-back-btn').addEventListener('click', () => {
+        completeExperience();
     });
 }
 
@@ -1150,24 +1169,52 @@ function setupScene5Events() {
     // 事件在 initScene5 中设置
 }
 
-// ========== 过渡动画 ==========
+// ========== 过渡动画：溺水下沉 → 渐黑 → 弹窗 ==========
+let drownTimers = [];
 function initTransition() {
-    const lightSpotsContainer = document.querySelector('.light-spots');
-    lightSpotsContainer.innerHTML = '';
-    
-    for (let i = 0; i < 10; i++) {
-        setTimeout(() => {
-            const spot = document.createElement('div');
-            spot.className = 'light-spot';
-            spot.style.left = `${Math.random() * 80 + 10}%`;
-            spot.style.animationDelay = `${Math.random() * 0.5}s`;
-            lightSpotsContainer.appendChild(spot);
-        }, i * 400);
+    // 重置可能残留的状态
+    drownTimers.forEach(t => clearTimeout(t));
+    drownTimers = [];
+
+    const fadeOverlay = document.getElementById('drown-fade-overlay');
+    const figure = document.getElementById('drown-figure');
+    const bubblesContainer = document.getElementById('drown-bubbles');
+
+    if (fadeOverlay) {
+        fadeOverlay.classList.remove('darkening');
+        fadeOverlay.style.opacity = '0';
+        fadeOverlay.style.animation = 'none';
+        // 强制 reflow 让 animation 重置生效
+        void fadeOverlay.offsetWidth;
     }
-    
-    setTimeout(() => {
-        completeExperience();
-    }, 5000);
+    if (figure) {
+        figure.style.animation = 'none';
+        void figure.offsetWidth;
+        figure.style.animation = '';
+    }
+    if (bubblesContainer) {
+        bubblesContainer.innerHTML = '';
+        // 生成 6-8 个气泡，每个起始位置和延迟不同
+        const bubbleCount = 7;
+        for (let i = 0; i < bubbleCount; i++) {
+            const bubble = document.createElement('div');
+            bubble.className = 'drown-bubble';
+            bubble.style.left = (Math.random() * 30 - 15) + 'px';
+            bubble.style.animationDelay = (Math.random() * 2.5) + 's';
+            bubble.style.animationDuration = (2.5 + Math.random() * 1.5) + 's';
+            bubblesContainer.appendChild(bubble);
+        }
+    }
+
+    // 5.5s 后开始黑色渐变覆盖
+    drownTimers.push(setTimeout(() => {
+        if (fadeOverlay) fadeOverlay.classList.add('darkening');
+    }, 5500));
+
+    // 7s 后（黑屏完成）弹出角色切换卡
+    drownTimers.push(setTimeout(() => {
+        showRoleSwitchModal();
+    }, 7000));
 }
 
 // 完成体验
@@ -1181,4 +1228,405 @@ function completeExperience() {
 // 生成海报（模拟）
 function generatePoster() {
     alert('海报生成功能：在实际项目中，这里可以使用html2canvas等库将页面内容转换为图片供用户分享。');
+}
+
+// ============================================================ //
+// ============ 正面回溯剧本（陪伴者练习室）============ //
+// ============================================================ //
+
+// Coze Agent 配置（⚠️ Key 明文写在此处，仅用于非盈利 demo）
+const COZE_API_KEY = '';           // ← 在此填入你的 Coze Personal Access Token (pat_xxx)
+const COZE_BOT_ID  = '';           // ← 在此填入你的 Coze Bot ID (7xxx 数字串)
+const COZE_API_HOST = 'https://api.coze.cn';  // 海外 Bot 改为 https://api.coze.com
+
+// 生成稳定的 user_id
+function getCozeUserId() {
+    let uid = localStorage.getItem('coze_user_id');
+    if (!uid) {
+        uid = 'user_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+        localStorage.setItem('coze_user_id', uid);
+    }
+    return uid;
+}
+
+// 角色切换弹窗
+function showRoleSwitchModal() {
+    const modal = document.getElementById('role-switch-modal');
+    if (!modal) return;
+    modal.classList.add('active');
+}
+
+function hideRoleSwitchModal() {
+    const modal = document.getElementById('role-switch-modal');
+    if (modal) modal.classList.remove('active');
+}
+
+// 开始正面剧本
+function startPositiveScript() {
+    appState.positiveScriptStarted = true;
+    hideRoleSwitchModal();
+    hideContinueButton();
+    switchPage('positive-script-page');
+    setTimeout(() => {
+        switchPosScene('pos-scene-intro');
+    }, 600);
+}
+
+// 正面场景切换
+function switchPosScene(targetId) {
+    document.querySelectorAll('#positive-script-page .pos-scene').forEach(s => {
+        s.classList.remove('active');
+    });
+    const target = document.getElementById(targetId);
+    if (target) {
+        target.classList.add('active');
+        if (targetId === 'pos-scene-intro') initPosSceneIntro();
+        if (targetId === 'pos-scene-1') initPosScene1();
+        if (targetId === 'pos-scene-2') initPosScene2();
+        if (targetId === 'pos-scene-3') initPosScene3();
+    }
+}
+
+// ========== 引导：身份告知 ==========
+function initPosSceneIntro() {
+    // 该场景主要是 CSS 动画，4.5s 后自动进入教学 1
+    setTimeout(() => {
+        switchPosScene('pos-scene-1');
+    }, 4500);
+}
+
+// ========== 教学场景 1：如何安静地听 ==========
+let pos1RoundIndex = 0;
+let pos1Initialized = false;
+
+const POS1_DIALOGUE = [
+    {
+        patient: '我最近...没什么。',
+        companion: '嗯，我听着呢。你想从哪里说起都可以。',
+        why: '不追问"怎么了"、不说"别想太多"。先表达"我在听"，让 ta 掌握节奏。'
+    },
+    {
+        patient: '反正说了也没人懂。',
+        companion: '我能想象那种没人懂的感觉。我不一定能帮上忙，但我想听你说。',
+        why: '不急着"反驳"或"保证"自己懂，而是承认自己的局限。真诚比完美更重要。'
+    },
+    {
+        patient: '……',
+        companion: '不说话也可以。我陪你坐一会儿。',
+        why: '沉默不等于没事。愿意安静地陪着，本身就是最有力的支持。'
+    }
+];
+
+function initPosScene1() {
+    if (pos1Initialized) return;
+    pos1Initialized = true;
+    pos1RoundIndex = 0;
+
+    const nextBtn = document.getElementById('pos-scene-1-next');
+
+    renderPos1Round();
+
+    nextBtn.addEventListener('click', () => {
+        if (pos1RoundIndex < POS1_DIALOGUE.length) {
+            pos1RoundIndex++;
+            if (pos1RoundIndex < POS1_DIALOGUE.length) {
+                renderPos1Round();
+                nextBtn.textContent = '继续 →';
+            } else {
+                renderPos1Summary();
+                nextBtn.style.display = 'none';
+            }
+        }
+    });
+}
+
+function renderPos1Round() {
+    const stage = document.getElementById('pos-scene-1-stage');
+    const oldSummary = stage.querySelector('.pos-summary-card');
+    if (oldSummary) oldSummary.remove();
+
+    const data = POS1_DIALOGUE[pos1RoundIndex];
+    const round = document.createElement('div');
+    round.className = 'pos-dialogue-round';
+    round.innerHTML = `
+        <div class="pos-bubble-row pos-patient">
+            <div class="pos-avatar">😔</div>
+            <div class="pos-bubble patient-bubble">${data.patient}</div>
+        </div>
+        <div class="pos-bubble-row pos-companion">
+            <div class="pos-bubble companion-bubble">${data.companion}</div>
+            <div class="pos-avatar companion-avatar">🤝</div>
+        </div>
+        <div class="pos-why-card">
+            <span class="why-tag">为什么这样回</span>${data.why}
+        </div>
+    `;
+    stage.appendChild(round);
+    setTimeout(() => { stage.scrollTop = stage.scrollHeight; }, 50);
+}
+
+function renderPos1Summary() {
+    const stage = document.getElementById('pos-scene-1-stage');
+    const summary = document.createElement('div');
+    summary.className = 'pos-summary-card';
+    summary.innerHTML = `
+        <h3>📝 第 1 课要点</h3>
+        <p><b>听</b>不等于"等对方说完然后立刻给建议"。</p>
+        <p>愿意安静地陪、不打断、不评判 —— 这件事本身就比话术更重要。</p>
+        <p>下一次，我们看看怎么回应 ta 嘴硬的那句"我没事"。</p>
+        <button id="pos1-go-next" class="btn btn-primary pos-next-btn">进入下一课 →</button>
+    `;
+    stage.appendChild(summary);
+    setTimeout(() => { stage.scrollTop = stage.scrollHeight; }, 50);
+
+    document.getElementById('pos1-go-next').addEventListener('click', () => {
+        switchPosScene('pos-scene-2');
+    });
+}
+
+// ========== 教学场景 2：回应"我没事" ==========
+let pos2Chosen = false;
+function initPosScene2() {
+    if (pos2Chosen) return;
+    const choices = document.querySelectorAll('#pos-scene-2-choices .pos-choice');
+    const feedback = document.getElementById('pos-scene-2-feedback');
+
+    choices.forEach(choice => {
+        choice.addEventListener('click', () => {
+            if (pos2Chosen) return;
+            pos2Chosen = true;
+            const isGood = choice.classList.contains('pos-choice-good');
+
+            choices.forEach(c => c.classList.add('disabled'));
+
+            feedback.style.display = 'block';
+            if (isGood) {
+                feedback.innerHTML = `
+                    <div class="feedback-title">✅ 这是一个好的回应</div>
+                    <p><b>关键词：留出空间 + 明确表达"我在"</b></p>
+                    <p>"那我就放心了"——先接住 ta 的"我没事"，不让 ta 觉得你不信 ta。</p>
+                    <p>"如果你哪天不想'没事'了"——给 ta 留一扇门，ta 知道这扇门随时可以推开。</p>
+                    <p>"随时找我"——明确表达：我没有走。</p>
+                    <button id="pos2-go-next" class="btn btn-primary pos-next-btn">进入实战练习 →</button>
+                `;
+            } else {
+                const label = choice.getAttribute('data-choice');
+                let reason = '';
+                if (label === 'A') {
+                    reason = '"别装了"——过早戳破，ta 可能瞬间关上刚打开的门。还没准备好被看穿。';
+                } else {
+                    reason = '"周末出来玩吧"——直接跳过情绪、跳到行动。ta 会觉得"连你也不愿意听"。';
+                }
+                feedback.innerHTML = `
+                    <div class="feedback-title bad">❌ 这个回应会让 ta 关上门</div>
+                    <p>${reason}</p>
+                    <p>不一定要选"最对的"，但要避免"最伤的"。</p>
+                    <p>点击 <b>选项 C</b> 看看更好的方式。</p>
+                    <button id="pos2-retry" class="btn btn-primary pos-next-btn">重新选择</button>
+                `;
+                document.getElementById('pos2-retry').addEventListener('click', () => {
+                    pos2Chosen = false;
+                    feedback.style.display = 'none';
+                    feedback.innerHTML = '';
+                    choices.forEach(c => c.classList.remove('disabled'));
+                });
+                return;
+            }
+
+            document.getElementById('pos2-go-next').addEventListener('click', () => {
+                switchPosScene('pos-scene-3');
+            });
+        });
+    });
+}
+
+// ========== 实战场景 3：与 Coze AI 聊天 ==========
+let pos3Initialized = false;
+let pos3MessageCount = 0;
+let pos3Sending = false;
+
+const POS3_SYSTEM_PROMPT = '你现在扮演一位用户的朋友：25 岁，在互联网公司做运营，最近工作压力大、和家人关系也紧张。你愿意找用户聊天，但不是那种"我好惨"的诉苦，更像是憋了很久、不知道从哪说起的感觉。请用真实、节制、略带迟疑的方式说话。';
+
+function initPosScene3() {
+    if (pos3Initialized) return;
+    pos3Initialized = true;
+    pos3MessageCount = 0;
+
+    const messagesEl = document.getElementById('pos-chat-messages');
+    const inputEl = document.getElementById('pos-chat-input');
+    const sendBtn = document.getElementById('pos-chat-send');
+    const endBtn = document.getElementById('pos-chat-end');
+
+    messagesEl.innerHTML = '';
+
+    appendPosMessage('system', '—— 真实聊天练习 ——\n对方是 2 个月前确诊轻度抑郁的朋友，正在吃药，最近压力大。\n没有"标准答案"，试着像真的朋友那样开口。');
+
+    setTimeout(() => {
+        sendCozeMessageAsAI('你好', POS3_SYSTEM_PROMPT);
+    }, 800);
+
+    sendBtn.addEventListener('click', handlePos3Send);
+    inputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+            e.preventDefault();
+            handlePos3Send();
+        }
+    });
+    endBtn.addEventListener('click', () => {
+        if (pos3MessageCount === 0) {
+            if (!confirm('还没开始聊天，确定要结束吗？')) return;
+        }
+        completePositiveScript();
+    });
+
+    setTimeout(() => inputEl.focus(), 200);
+}
+
+function handlePos3Send() {
+    if (pos3Sending) return;
+    const inputEl = document.getElementById('pos-chat-input');
+    const text = inputEl.value.trim();
+    if (!text) return;
+
+    appendPosMessage('user', text);
+    inputEl.value = '';
+    pos3MessageCount++;
+    sendCozeMessageAsAI(text);
+}
+
+function appendPosMessage(type, content) {
+    const messagesEl = document.getElementById('pos-chat-messages');
+    if (!messagesEl) return;
+    const msg = document.createElement('div');
+    msg.className = 'pos-msg msg-' + type;
+    msg.textContent = content;
+    messagesEl.appendChild(msg);
+    setTimeout(() => { messagesEl.scrollTop = messagesEl.scrollHeight; }, 30);
+}
+
+function showPosTyping() {
+    const messagesEl = document.getElementById('pos-chat-messages');
+    const typing = document.createElement('div');
+    typing.className = 'pos-typing';
+    typing.id = 'pos-typing-indicator';
+    typing.innerHTML = '<span class="pos-typing-dot"></span><span class="pos-typing-dot"></span><span class="pos-typing-dot"></span>';
+    messagesEl.appendChild(typing);
+    setTimeout(() => { messagesEl.scrollTop = messagesEl.scrollHeight; }, 30);
+}
+
+function hidePosTyping() {
+    const t = document.getElementById('pos-typing-indicator');
+    if (t) t.remove();
+}
+
+// 调用 Coze Agent（非流式 + 轮询）
+async function sendCozeMessageAsAI(userText, systemPrompt) {
+    if (!COZE_API_KEY || !COZE_BOT_ID) {
+        appendPosMessage('error', '⚠️ Coze API Key 或 Bot ID 未配置。\n请打开 app.js，在顶部填入 COZE_API_KEY 和 COZE_BOT_ID。');
+        return;
+    }
+
+    pos3Sending = true;
+    const sendBtn = document.getElementById('pos-chat-send');
+    if (sendBtn) sendBtn.disabled = true;
+    showPosTyping();
+
+    const messages = [];
+    if (systemPrompt) {
+        messages.push({ role: 'system', content: systemPrompt, content_type: 'text' });
+    }
+    messages.push({ role: 'user', content: userText, content_type: 'text' });
+
+    try {
+        // 1. 创建 chat
+        const createRes = await fetch(COZE_API_HOST + '/v3/chat', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + COZE_API_KEY,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                bot_id: COZE_BOT_ID,
+                user_id: getCozeUserId(),
+                stream: false,
+                auto_save_history: true,
+                additional_messages: messages
+            })
+        });
+
+        if (!createRes.ok) {
+            throw new Error('HTTP ' + createRes.status + ' ' + createRes.statusText);
+        }
+
+        const createData = await createRes.json();
+        if (createData.code !== 0) {
+            throw new Error(createData.msg || 'Coze 返回错误');
+        }
+
+        const chatId = createData.data.id;
+        const conversationId = createData.data.conversation_id;
+
+        // 2. 轮询直到完成
+        let finalAnswer = '';
+        const maxPolls = 30;
+        for (let i = 0; i < maxPolls; i++) {
+            await new Promise(r => setTimeout(r, 1000));
+            const pollRes = await fetch(COZE_API_HOST + '/v3/chat/retrieve?conversation_id=' + conversationId + '&chat_id=' + chatId, {
+                headers: { 'Authorization': 'Bearer ' + COZE_API_KEY }
+            });
+            if (!pollRes.ok) continue;
+            const pollData = await pollRes.json();
+            if (pollData.code !== 0) continue;
+            const status = pollData.data.status;
+            if (status === 'completed') {
+                // 3. 拉取消息列表
+                const msgRes = await fetch(COZE_API_HOST + '/v3/chat/message/list?conversation_id=' + conversationId + '&chat_id=' + chatId, {
+                    headers: { 'Authorization': 'Bearer ' + COZE_API_KEY }
+                });
+                if (msgRes.ok) {
+                    const msgData = await msgRes.json();
+                    if (Array.isArray(msgData.data)) {
+                        for (const m of msgData.data) {
+                            if (m.role === 'assistant' && m.type === 'answer' && m.content) {
+                                finalAnswer = m.content;
+                                break;
+                            }
+                        }
+                    }
+                }
+                break;
+            } else if (status === 'failed' || status === 'cancelled') {
+                throw new Error('对话失败：' + status);
+            }
+        }
+
+        hidePosTyping();
+        if (finalAnswer) {
+            appendPosMessage('ai', finalAnswer);
+            pos3MessageCount++;
+        } else {
+            appendPosMessage('error', 'AI 这会儿没回上来，再试一次？');
+        }
+    } catch (err) {
+        console.warn('[Coze] 调用失败：', err);
+        hidePosTyping();
+        appendPosMessage('error', 'AI 这会儿没回上来，再试一次？\n(' + (err.message || '网络异常') + ')');
+    } finally {
+        pos3Sending = false;
+        if (sendBtn) sendBtn.disabled = false;
+    }
+}
+
+// ========== 正面剧本完成 ==========
+function completePositiveScript() {
+    appState.positiveScriptCompleted = true;
+    localStorage.setItem('positiveScriptCompleted', 'true');
+    document.getElementById('summary-messages').textContent = String(pos3MessageCount);
+
+    // "轮对话" = 用户消息数（向下取整）
+    const userMsgCount = Math.floor(pos3MessageCount / 2);
+    document.getElementById('summary-rounds').textContent = String(userMsgCount);
+
+    hideRoleSwitchModal();
+    switchPage('positive-complete-page');
 }

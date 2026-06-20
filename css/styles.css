@@ -1586,18 +1586,840 @@ body {
     .doors-container {
         grid-template-columns: 1fr;
     }
-    
+
     .door {
         width: 200px;
         height: 280px;
     }
-    
+
     .opening-buttons {
         flex-direction: column;
     }
-    
+
     .empathy-content button {
         width: 100%;
         margin: 10px 0;
+    }
+}
+
+/* ============================================================ */
+/* ============ 正面回溯剧本（陪伴者练习室）样式 =============== */
+/* ============================================================ */
+
+/* ========== 溺水过渡 ========== */
+#transition-scene {
+    background: linear-gradient(180deg, #1a3a5c 0%, #0a1828 100%);
+    overflow: hidden;
+}
+
+.drown-water {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(80, 120, 180, 0.25), transparent 60%),
+        radial-gradient(ellipse at 30% 80%, rgba(20, 50, 90, 0.35), transparent 70%),
+        radial-gradient(ellipse at 70% 30%, rgba(40, 70, 110, 0.3), transparent 65%);
+    pointer-events: none;
+}
+
+.drown-figure {
+    position: absolute;
+    left: 50%;
+    top: 30%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 200px;
+    filter: blur(1.5px);
+    opacity: 0.92;
+    animation: drown-sink 5.5s ease-in forwards;
+    pointer-events: none;
+}
+
+.drown-figure-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+@keyframes drown-sink {
+    0%   { transform: translate(-50%, 0)    scale(1);    opacity: 0.95; }
+    60%  { transform: translate(-50%, 6vh) scale(0.95); opacity: 0.78; }
+    100% { transform: translate(-50%, 10vh) scale(0.9);  opacity: 0.55; }
+}
+
+.drown-bubbles {
+    position: absolute;
+    left: 50%;
+    top: 30%;
+    width: 60px;
+    height: 200px;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.drown-bubble {
+    position: absolute;
+    bottom: 0;
+    width: 8px;
+    height: 8px;
+    background: rgba(180, 210, 240, 0.4);
+    border: 1px solid rgba(220, 235, 250, 0.5);
+    border-radius: 50%;
+    animation: bubble-rise 3s ease-in infinite;
+}
+
+@keyframes bubble-rise {
+    0%   { transform: translateY(0)     scale(0.6); opacity: 0; }
+    15%  { opacity: 0.7; }
+    100% { transform: translateY(-180px) scale(1.2); opacity: 0; }
+}
+
+.drown-fade-overlay {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.drown-fade-overlay.darkening {
+    animation: drown-to-black 1.5s ease-in 0.5s forwards;
+}
+
+@keyframes drown-to-black {
+    0%   { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* ========== 角色切换弹窗 ========== */
+.role-switch-modal {
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.role-switch-modal .modal-content {
+    max-width: 520px;
+    padding: 40px 36px;
+    text-align: center;
+    background: linear-gradient(160deg, rgba(44, 62, 80, 0.95) 0%, rgba(52, 73, 94, 0.95) 100%);
+    border: 1px solid rgba(248, 233, 161, 0.25);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    border-radius: 16px;
+    opacity: 0;
+    transform: scale(0.96);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.role-switch-modal.active .modal-content {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.role-switch-icon {
+    font-size: 56px;
+    margin-bottom: 16px;
+}
+
+.role-switch-modal h2 {
+    font-size: 26px;
+    margin-bottom: 18px;
+    color: #fff;
+}
+
+.role-switch-desc {
+    font-size: 16px;
+    color: rgba(236, 240, 241, 0.7);
+    margin-bottom: 6px;
+}
+
+.role-switch-question {
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 24px;
+}
+
+.role-switch-question strong {
+    color: var(--healing-light);
+    font-weight: 600;
+}
+
+.role-switch-detail {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+    padding: 14px 0;
+    border-top: 1px dashed rgba(236, 240, 241, 0.2);
+    border-bottom: 1px dashed rgba(236, 240, 241, 0.2);
+}
+
+.role-tag {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.role-tag.role-old b {
+    color: var(--light-gray);
+    font-weight: 500;
+}
+
+.role-tag.role-new {
+    background: rgba(248, 233, 161, 0.18);
+    border: 1px solid rgba(248, 233, 161, 0.4);
+}
+
+.role-tag.role-new b {
+    color: var(--healing-light);
+    font-weight: 600;
+}
+
+.role-arrow {
+    color: var(--healing-light);
+    font-size: 18px;
+}
+
+.role-switch-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+}
+
+.role-switch-buttons .btn {
+    width: 100%;
+}
+
+/* ========== 正面剧本页 ========== */
+#positive-script-page {
+    background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+    flex-direction: column;
+}
+
+.positive-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+}
+
+.pos-scene {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    padding: 40px 20px;
+    box-sizing: border-box;
+}
+
+.pos-scene.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 正面剧本引导 */
+.pos-intro-content {
+    text-align: center;
+    max-width: 560px;
+    color: #fff;
+}
+
+.pos-intro-icon {
+    font-size: 64px;
+    margin-bottom: 24px;
+    animation: float-gentle 3s ease-in-out infinite;
+}
+
+@keyframes float-gentle {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+}
+
+.pos-intro-content h2 {
+    font-size: 28px;
+    margin-bottom: 32px;
+    color: var(--healing-light);
+}
+
+.pos-intro-line {
+    font-size: 17px;
+    line-height: 1.8;
+    color: rgba(236, 240, 241, 0.85);
+    margin-bottom: 8px;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: pos-line-in 0.8s ease forwards;
+}
+
+.pos-intro-line:nth-child(2) { animation-delay: 0.6s; }
+.pos-intro-line:nth-child(3) { animation-delay: 1.2s; }
+.pos-intro-line:nth-child(4) { animation-delay: 1.8s; }
+
+.pos-intro-strong {
+    font-size: 20px;
+    color: var(--healing-light);
+    font-weight: 500;
+    margin-top: 12px;
+}
+
+@keyframes pos-line-in {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 教学场景通用 */
+.pos-teaching-header {
+    text-align: center;
+    margin-bottom: 24px;
+    color: #fff;
+}
+
+.pos-step-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(248, 233, 161, 0.2);
+    color: var(--healing-light);
+    border-radius: 12px;
+    font-size: 13px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(248, 233, 161, 0.3);
+}
+
+.pos-teaching-header h2 {
+    font-size: 26px;
+    margin-bottom: 6px;
+    color: #fff;
+}
+
+.pos-subtitle {
+    font-size: 14px;
+    color: rgba(236, 240, 241, 0.6);
+    letter-spacing: 0.5px;
+}
+
+.pos-teaching-footer {
+    margin-top: 24px;
+    text-align: center;
+}
+
+/* 教学场景 1：对话分栏 */
+.pos-dialogue-stage {
+    width: 100%;
+    max-width: 680px;
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 8px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.pos-dialogue-round {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    animation: pos-round-in 0.6s ease forwards;
+}
+
+@keyframes pos-round-in {
+    from { opacity: 0; transform: translateY(15px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.pos-bubble-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    max-width: 100%;
+}
+
+.pos-bubble-row.pos-patient  { justify-content: flex-start; }
+.pos-bubble-row.pos-companion { justify-content: flex-end; }
+
+.pos-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.pos-avatar.companion-avatar {
+    background: rgba(248, 233, 161, 0.2);
+}
+
+.pos-bubble {
+    padding: 12px 16px;
+    border-radius: 16px;
+    max-width: 75%;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #fff;
+    word-wrap: break-word;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.pos-bubble.patient-bubble {
+    background: rgba(255, 255, 255, 0.12);
+    border-bottom-left-radius: 4px;
+}
+
+.pos-bubble.companion-bubble {
+    background: linear-gradient(135deg, #4a6178 0%, #5d7a92 100%);
+    border-bottom-right-radius: 4px;
+    border: 1px solid rgba(248, 233, 161, 0.25);
+}
+
+.pos-bubble-meta {
+    font-size: 12px;
+    color: rgba(236, 240, 241, 0.5);
+    margin-top: 4px;
+    text-align: center;
+}
+
+.pos-why-card {
+    margin: 4px 12px;
+    padding: 12px 16px;
+    background: rgba(248, 233, 161, 0.08);
+    border-left: 3px solid var(--healing-light);
+    border-radius: 6px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: rgba(248, 233, 161, 0.92);
+}
+
+.pos-why-card .why-tag {
+    display: inline-block;
+    font-size: 12px;
+    color: var(--healing-light);
+    font-weight: 600;
+    margin-right: 6px;
+}
+
+.pos-summary-card {
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 24px;
+    background: rgba(248, 233, 161, 0.1);
+    border: 1px solid rgba(248, 233, 161, 0.3);
+    border-radius: 12px;
+    text-align: center;
+    color: #fff;
+    animation: pos-round-in 0.6s ease forwards;
+}
+
+.pos-summary-card h3 {
+    color: var(--healing-light);
+    font-size: 20px;
+    margin-bottom: 14px;
+}
+
+.pos-summary-card p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: rgba(236, 240, 241, 0.9);
+    margin-bottom: 8px;
+}
+
+.pos-summary-card .pos-next-btn {
+    margin-top: 18px;
+}
+
+/* 教学场景 2：选择题 */
+.pos-scenario-card {
+    max-width: 680px;
+    width: 100%;
+    margin-bottom: 22px;
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    color: rgba(236, 240, 241, 0.92);
+    font-size: 15.5px;
+    line-height: 1.7;
+    text-align: center;
+}
+
+.pos-choices {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pos-choice {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    color: #fff;
+    font-size: 15.5px;
+    line-height: 1.6;
+    text-align: left;
+}
+
+.pos-choice:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(4px);
+}
+
+.pos-choice.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.pos-choice-label {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.pos-choice.pos-choice-good .pos-choice-label {
+    background: rgba(46, 204, 113, 0.25);
+    color: #2ecc71;
+}
+
+.pos-choice.pos-choice-bad .pos-choice-label {
+    background: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+}
+
+.pos-choice-text {
+    flex: 1;
+}
+
+.pos-choice-feedback {
+    width: 100%;
+    max-width: 680px;
+    margin-top: 22px;
+    padding: 20px 22px;
+    background: rgba(248, 233, 161, 0.08);
+    border: 1px solid rgba(248, 233, 161, 0.3);
+    border-radius: 10px;
+    color: #fff;
+    animation: pos-round-in 0.5s ease forwards;
+}
+
+.pos-choice-feedback .feedback-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--healing-light);
+    margin-bottom: 10px;
+}
+
+.pos-choice-feedback .feedback-title.bad {
+    color: #e74c3c;
+}
+
+.pos-choice-feedback p {
+    font-size: 14.5px;
+    line-height: 1.7;
+    color: rgba(236, 240, 241, 0.92);
+    margin-bottom: 8px;
+}
+
+.pos-choice-feedback .pos-next-btn {
+    margin-top: 14px;
+}
+
+/* 实战场景 3：聊天 */
+.pos-chat-scene {
+    padding: 0;
+    justify-content: flex-start;
+}
+
+.pos-chat-profile {
+    flex-shrink: 0;
+    width: 100%;
+    padding: 16px 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: #fff;
+}
+
+.pos-chat-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(248, 233, 161, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.pos-chat-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.pos-chat-name {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.pos-chat-meta {
+    font-size: 12.5px;
+    color: rgba(236, 240, 241, 0.6);
+    line-height: 1.4;
+}
+
+.pos-chat-hint {
+    font-size: 12px;
+    color: var(--healing-light);
+    padding: 4px 10px;
+    border: 1px solid rgba(248, 233, 161, 0.4);
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.pos-chat-messages {
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.pos-msg {
+    max-width: 78%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #fff;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    animation: pos-round-in 0.3s ease forwards;
+}
+
+.pos-msg.msg-ai {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.1);
+    border-bottom-left-radius: 4px;
+}
+
+.pos-msg.msg-user {
+    align-self: flex-end;
+    background: linear-gradient(135deg, #4a6178 0%, #5d7a92 100%);
+    border-bottom-right-radius: 4px;
+}
+
+.pos-msg.msg-system {
+    align-self: center;
+    background: rgba(248, 233, 161, 0.1);
+    color: rgba(248, 233, 161, 0.85);
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 12px;
+    border: 1px dashed rgba(248, 233, 161, 0.3);
+}
+
+.pos-msg.msg-error {
+    align-self: center;
+    background: rgba(231, 76, 60, 0.15);
+    color: #f5b7b1;
+    font-size: 13px;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+.pos-typing {
+    align-self: flex-start;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    border-bottom-left-radius: 4px;
+    display: flex;
+    gap: 4px;
+}
+
+.pos-typing-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    animation: typing-bounce 1.2s ease-in-out infinite;
+}
+
+.pos-typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.pos-typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes typing-bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30%           { transform: translateY(-4px); opacity: 1; }
+}
+
+.pos-chat-input-bar {
+    flex-shrink: 0;
+    width: 100%;
+    padding: 12px 16px 16px;
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pos-chat-input {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.pos-chat-input:focus {
+    border-color: var(--healing-light);
+}
+
+.pos-chat-input::placeholder {
+    color: rgba(236, 240, 241, 0.4);
+}
+
+.pos-chat-send,
+.pos-chat-end {
+    padding: 8px 16px;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+/* 正面完成页 */
+#positive-complete-page {
+    background: linear-gradient(180deg, #34495e 0%, #4a6178 100%);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.positive-complete-content {
+    text-align: center;
+    padding: 40px 20px;
+    color: #fff;
+    max-width: 540px;
+}
+
+.positive-complete-icon {
+    font-size: 72px;
+    margin-bottom: 20px;
+    animation: float-gentle 3s ease-in-out infinite;
+}
+
+.positive-complete-content h1 {
+    font-size: 28px;
+    margin-bottom: 16px;
+    color: var(--healing-light);
+    line-height: 1.4;
+}
+
+.positive-complete-sub {
+    font-size: 16px;
+    line-height: 1.8;
+    color: rgba(236, 240, 241, 0.85);
+    margin-bottom: 32px;
+}
+
+.positive-complete-summary {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 32px;
+    padding: 20px;
+    background: rgba(248, 233, 161, 0.08);
+    border: 1px solid rgba(248, 233, 161, 0.25);
+    border-radius: 12px;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.summary-num {
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--healing-light);
+    line-height: 1;
+    margin-bottom: 6px;
+}
+
+.summary-label {
+    font-size: 13px;
+    color: rgba(236, 240, 241, 0.7);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .role-switch-modal .modal-content {
+        padding: 28px 22px;
+        margin: 16px;
+    }
+
+    .role-switch-modal h2 {
+        font-size: 22px;
+    }
+
+    .pos-intro-content h2,
+    .pos-teaching-header h2,
+    .positive-complete-content h1 {
+        font-size: 22px;
+    }
+
+    .pos-bubble,
+    .pos-choice,
+    .pos-msg {
+        font-size: 14.5px;
+    }
+
+    .pos-chat-input {
+        font-size: 14px;
     }
 }
