@@ -134,6 +134,7 @@ function bindEvents() {
     setupScene2Events();
     setupScene2AEvents();
     setupScene2BEvents();
+    setupScene3BEvents();
     setupScene3AEvents();
     setupScene4Events();
     setupScene5Events();
@@ -302,6 +303,9 @@ function initScene(sceneId) {
             break;
         case 'scene-2b':
             initScene2B();
+            break;
+        case 'scene-3b':
+            initScene3B();
             break;
         case 'scene-3a':
             initScene3A();
@@ -922,12 +926,19 @@ function initScene2B() {
     
     const createWord = () => {
         if (wordCount >= maxWords) {
-            showInnerMonologue('scene2b-monologue', '我真的这么没用吗...');
+            // 弹幕结束后触发屏幕颤动（与早上起床相同的动效）
+            const sceneContent = document.getElementById('scene-2b-content');
+            sceneContent.classList.add('shaking');
             setTimeout(() => {
-                showContinueButton(() => {
-                    switchScene('scene-3a');
-                });
-            }, 2000);
+                sceneContent.classList.remove('shaking');
+                // 颤动结束后显示内心独白
+                showInnerMonologue('scene2b-monologue', '我真的这么没用吗...');
+                setTimeout(() => {
+                    showContinueButton(() => {
+                        switchScene('scene-3b');
+                    });
+                }, 2000);
+            }, 1500);
             return;
         }
         
@@ -948,6 +959,133 @@ function initScene2B() {
 
 function setupScene2BEvents() {
     // 弹幕事件在 initScene2B 中设置
+}
+
+// ========== 场景3B：在家 · 什么都提不起劲 ==========
+let scene3BInitialized = false;
+let scene3BCompleted = false;
+let scene3BGivenUpCount = 0;
+const SCENE3B_TOTAL = 4;
+let scene3BTimers = [];
+
+function setupScene3BEvents() {
+    // 事件在 initScene3B 中动态绑定
+}
+
+function resetScene3B() {
+    scene3BCompleted = false;
+    scene3BGivenUpCount = 0;
+    scene3BTimers.forEach(t => { clearTimeout(t); clearInterval(t); });
+    scene3BTimers = [];
+
+    const tasks = document.querySelectorAll('.home-task');
+    tasks.forEach(t => {
+        t.classList.remove('doing', 'given-up');
+        const fill = t.querySelector('.task-progress-fill');
+        if (fill) fill.style.width = '0%';
+    });
+
+    const giveup = document.getElementById('task-giveup');
+    if (giveup) giveup.classList.remove('visible');
+
+    const prompt = document.getElementById('home-prompt');
+    if (prompt) prompt.textContent = '做点什么吧…';
+
+    const figure = document.getElementById('bed-figure');
+    if (figure) figure.style.transform = 'translateX(-50%)';
+
+    const content = document.querySelector('.scene-3b-content');
+    if (content) content.classList.remove('all-given-up');
+
+    const monologue = document.getElementById('scene3b-monologue');
+    if (monologue) { monologue.style.display = 'none'; monologue.textContent = ''; }
+}
+
+function initScene3B() {
+    resetScene3B();
+
+    if (!scene3BInitialized) {
+        scene3BInitialized = true;
+        const tasks = document.querySelectorAll('.home-task');
+        tasks.forEach(task => {
+            task.addEventListener('click', () => handleTask3BClick(task));
+            task.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                handleTask3BClick(task);
+            }, { passive: false });
+        });
+    }
+}
+
+function handleTask3BClick(task) {
+    if (scene3BCompleted) return;
+    if (task.classList.contains('doing') || task.classList.contains('given-up')) return;
+
+    task.classList.add('doing');
+    const fill = task.querySelector('.task-progress-fill');
+    const giveup = document.getElementById('task-giveup');
+    const prompt = document.getElementById('home-prompt');
+
+    if (prompt) prompt.textContent = '……';
+
+    // 进度条增长到中途随机停住 —— 怎么都做不下去
+    let progress = 0;
+    const targetMax = 42 + Math.random() * 12; // 42% - 54%
+    let intervalId;
+    intervalId = setInterval(() => {
+        progress += 2;
+        if (fill) fill.style.width = Math.min(progress, targetMax) + '%';
+        if (progress >= targetMax) {
+            clearInterval(intervalId);
+            // 停滞，浮现"算了"
+            if (giveup) giveup.classList.add('visible');
+            const stopTimer = setTimeout(() => {
+                if (giveup) giveup.classList.remove('visible');
+                task.classList.remove('doing');
+                task.classList.add('given-up');
+                scene3BGivenUpCount++;
+
+                // 主角身体更沉一点
+                const figure = document.getElementById('bed-figure');
+                if (figure) {
+                    const dropY = scene3BGivenUpCount * 5;
+                    const scaleY = Math.max(1 - scene3BGivenUpCount * 0.07, 0.6);
+                    figure.style.transform = `translateX(-50%) translateY(${dropY}px) scaleY(${scaleY})`;
+                }
+
+                if (scene3BGivenUpCount < SCENE3B_TOTAL) {
+                    if (prompt) prompt.textContent = '再试试别的？…';
+                }
+                if (scene3BGivenUpCount >= SCENE3B_TOTAL) {
+                    completeScene3B();
+                }
+            }, 1200);
+            scene3BTimers.push(stopTimer);
+        }
+    }, 60);
+    scene3BTimers.push(intervalId);
+}
+
+function completeScene3B() {
+    if (scene3BCompleted) return;
+    scene3BCompleted = true;
+
+    const content = document.querySelector('.scene-3b-content');
+    if (content) content.classList.add('all-given-up');
+
+    const prompt = document.getElementById('home-prompt');
+    if (prompt) prompt.textContent = '';
+
+    const t1 = setTimeout(() => {
+        showInnerMonologue('scene3b-monologue', '明明有很多事可以做……可我什么都提不起劲。');
+        const t2 = setTimeout(() => {
+            showContinueButton(() => {
+                switchScene('scene-4');
+            });
+        }, 2600);
+        scene3BTimers.push(t2);
+    }, 900);
+    scene3BTimers.push(t1);
 }
 
 // ========== 场景3A - 摘下面具 ==========
@@ -1169,52 +1307,400 @@ function setupScene5Events() {
     // 事件在 initScene5 中设置
 }
 
-// ========== 过渡动画：溺水下沉 → 渐黑 → 弹窗 ==========
+// ========== 过渡动画：溺水下沉（真实场景，约 95 秒） → 渐黑 → 弹窗 ==========
+const DROWN_SINK_DURATION = 90000;   // 下沉 90 秒
+const DROWN_PAUSE_BEFORE_BLACK = 5000; // 沉到底后 5 秒静止
+const DROWN_BLACK_DURATION = 4000;   // 黑屏 4 秒
+
+const drownState = {
+    pressCount: 0,
+    defeat: 0,
+    pressImpulse: 0,
+    finished: false,
+    startTime: 0,
+    armPhase: 'down',
+    armPhaseAt: 0,
+    nextPause: 9000,
+};
+
 let drownTimers = [];
+let drownBubbleTimers = [];
+let drownAnimId = null;
+let drownBtnBound = false;
+
+const drownEaseInCubic = t => t * t * t;
+const drownEaseOutQuad = t => 1 - (1 - t) * (1 - t);
+
+const drownMainTexts = [
+    '正在下沉',
+    '向上的力气...无济于事',
+    '越挣扎 越下沉',
+    '没有人听见',
+    '...',
+    '...',
+];
+const drownFeedbackTexts = [
+    '向上...0.5cm',
+    '又回到原位',
+    '深渊在拽着你',
+    '力气...被吞没',
+    '再试一次...',
+    '没有人听见',
+    '...',
+    '...',
+];
+
 function initTransition() {
-    // 重置可能残留的状态
-    drownTimers.forEach(t => clearTimeout(t));
-    drownTimers = [];
+    // 清理上一轮残留
+    if (drownAnimId) { cancelAnimationFrame(drownAnimId); drownAnimId = null; }
+    drownTimers.forEach(t => clearTimeout(t));      drownTimers = [];
+    drownBubbleTimers.forEach(t => clearTimeout(t)); drownBubbleTimers = [];
 
-    const fadeOverlay = document.getElementById('drown-fade-overlay');
-    const figure = document.getElementById('drown-figure');
-    const bubblesContainer = document.getElementById('drown-bubbles');
+    // 隐藏右上角"继续"按钮
+    if (typeof hideContinueButton === 'function') {
+        try { hideContinueButton(); } catch (_) {}
+    }
 
+    // 重置状态
+    drownState.pressCount    = 0;
+    drownState.defeat        = 0;
+    drownState.pressImpulse  = 0;
+    drownState.finished      = false;
+    drownState.startTime     = performance.now();
+    drownState.armPhase      = 'down';
+    drownState.armPhaseAt    = 0;
+    drownState.nextPause     = 9000;
+
+    const figure        = document.getElementById('drown-figure-wrap');
+    const armLeft       = document.getElementById('drown-arm-left');
+    const armRight      = document.getElementById('drown-arm-right');
+    const head          = document.getElementById('drown-head');
+    const torso         = document.getElementById('drown-torso');
+    const bubblesLayer  = document.getElementById('drown-bubbles');
+    const particlesLayer= document.getElementById('drown-particles');
+    const fadeOverlay   = document.getElementById('drown-final-black');
+    const vignette      = document.getElementById('drown-vignette');
+    const depthOverlay  = document.getElementById('drown-depth-overlay');
+    const innerText     = document.getElementById('drown-inner-text');
+    const floatBtn      = document.getElementById('drown-float-btn');
+    const btnCount      = document.getElementById('drown-btn-count');
+    const transitionEl  = document.getElementById('transition-scene');
+
+    if (!figure || !transitionEl) return;
+
+    // 复位所有可动元素
     if (fadeOverlay) {
-        fadeOverlay.classList.remove('darkening');
+        fadeOverlay.classList.remove('show');
         fadeOverlay.style.opacity = '0';
-        fadeOverlay.style.animation = 'none';
-        // 强制 reflow 让 animation 重置生效
-        void fadeOverlay.offsetWidth;
     }
-    if (figure) {
-        figure.style.animation = 'none';
-        void figure.offsetWidth;
-        figure.style.animation = '';
+    if (bubblesLayer) bubblesLayer.innerHTML = '';
+    if (innerText) {
+        innerText.classList.remove('show');
+        innerText.textContent = drownMainTexts[0];
     }
-    if (bubblesContainer) {
-        bubblesContainer.innerHTML = '';
-        // 生成 6-8 个气泡，每个起始位置和延迟不同
-        const bubbleCount = 7;
-        for (let i = 0; i < bubbleCount; i++) {
-            const bubble = document.createElement('div');
-            bubble.className = 'drown-bubble';
-            bubble.style.left = (Math.random() * 30 - 15) + 'px';
-            bubble.style.animationDelay = (Math.random() * 2.5) + 's';
-            bubble.style.animationDuration = (2.5 + Math.random() * 1.5) + 's';
-            bubblesContainer.appendChild(bubble);
+    if (floatBtn) {
+        floatBtn.classList.remove('show');
+        floatBtn.style.color = '';
+        floatBtn.style.borderColor = '';
+        floatBtn.style.background = '';
+        floatBtn.style.pointerEvents = '';
+    }
+    if (btnCount) btnCount.textContent = '0';
+    // 清掉之前可能残留的反馈/水波
+    transitionEl.querySelectorAll('.drown-press-ripple, .drown-press-feedback').forEach(el => el.remove());
+
+    // 创建悬浮颗粒
+    createDrownParticles(particlesLayer, transitionEl);
+
+    // 获取高度
+    const H = () => transitionEl.clientHeight;
+
+    // === 手臂的微挣扎（state machine） ===
+    function updateArm(now) {
+        const baseLeft = drownState.defeat * 22;
+        if (drownState.armPhase === 'down') {
+            if (now - drownState.armPhaseAt > drownState.nextPause) {
+                drownState.armPhase = 'raising';
+                drownState.armPhaseAt = now;
+            }
+            armLeft.style.transform = `rotate(${baseLeft}deg)`;
+            return;
+        }
+        if (drownState.armPhase === 'raising') {
+            const t = (now - drownState.armPhaseAt) / 5500;
+            if (t >= 1) { drownState.armPhase = 'dropping'; drownState.armPhaseAt = now; return; }
+            const eased = drownEaseOutQuad(t);
+            armLeft.style.transform = `rotate(${baseLeft + (-110) * eased}deg)`;
+            return;
+        }
+        if (drownState.armPhase === 'dropping') {
+            const t = (now - drownState.armPhaseAt) / 1800;
+            if (t >= 1) {
+                drownState.armPhase = 'down';
+                drownState.armPhaseAt = now;
+                drownState.nextPause = 8000 + Math.random() * 5000;
+                armLeft.style.transform = `rotate(${baseLeft}deg)`;
+                return;
+            }
+            const eased = t * t;
+            armLeft.style.transform = `rotate(${baseLeft + (-110) * (1 - eased)}deg)`;
         }
     }
 
-    // 5.5s 后开始黑色渐变覆盖
-    drownTimers.push(setTimeout(() => {
-        if (fadeOverlay) fadeOverlay.classList.add('darkening');
-    }, 5500));
+    // === 主循环：人物下沉 + 姿态 ===
+    function loop(now) {
+        const elapsed = now - drownState.startTime;
+        const t = Math.min(1, elapsed / DROWN_SINK_DURATION);
+        const eased = drownEaseInCubic(t);
 
-    // 7s 后（黑屏完成）弹出角色切换卡
+        const figureH = figure.offsetHeight;
+        const defeatShift = drownState.defeat * 0.08;
+        const startPx = H() * 0.22 - figureH * 0.5;
+        const endPx   = H() * (0.98 + defeatShift) - figureH * 0.5;
+        const yPx     = startPx + (endPx - startPx) * eased;
+
+        const driftX = Math.sin(elapsed * 0.00012) * 14;
+        const tilt   = Math.sin(elapsed * 0.00025) * 5;
+
+        // 按下瞬间：身体被压扁（力的视觉化，不改速度）
+        const impulseYScale = 1 - drownState.pressImpulse * 0.14;
+        const impulseXScale = 1 - drownState.pressImpulse * 0.04;
+        const impulseTilt   = drownState.pressImpulse * 3;
+
+        figure.style.transform =
+            `translate(calc(-50% + ${driftX}px), ${yPx}px) ` +
+            `rotate(${tilt + impulseTilt}deg) ` +
+            `scale(${impulseXScale}, ${impulseYScale})`;
+
+        // 头、躯干、右臂随 defeat 变化
+        const headSquish = 1 - drownState.defeat * 0.18;
+        const headTilt   = drownState.defeat * 12;
+        head.style.transform  = `scaleY(${headSquish}) rotate(${headTilt}deg)`;
+
+        const bodySlump = 1 - drownState.defeat * 0.08;
+        torso.style.transform = `scaleY(${bodySlump})`;
+
+        const armDroop = drownState.defeat * 22;
+        armRight.style.transform = `rotate(${armDroop}deg)`;
+
+        // 越深越模糊；defeat 越高，模糊越快
+        const blur = (eased + drownState.defeat * 0.3) * 3.6;
+        if (depthOverlay) {
+            depthOverlay.style.backdropFilter        = `blur(${blur}px)`;
+            depthOverlay.style.webkitBackdropFilter = `blur(${blur}px)`;
+        }
+        const vigAlpha = 0.45 + drownState.defeat * 0.4 + eased * 0.1;
+        if (vignette) {
+            vignette.style.background =
+                `radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,${vigAlpha}) 95%)`;
+        }
+
+        // 按下冲击衰减
+        drownState.pressImpulse *= 0.93;
+        if (drownState.pressImpulse < 0.005) drownState.pressImpulse = 0;
+
+        updateArm(now);
+        drownAnimId = requestAnimationFrame(loop);
+    }
+    drownAnimId = requestAnimationFrame(loop);
+
+    // === 气泡循环 ===
+    function bubbleLoop() {
+        if (drownState.finished) return;
+        spawnDrownBubble(figure, bubblesLayer, transitionEl);
+        if (Math.random() < 0.3) drownBubbleTimers.push(setTimeout(() => spawnDrownBubble(figure, bubblesLayer, transitionEl), 200));
+        if (Math.random() < 0.15) drownBubbleTimers.push(setTimeout(() => spawnDrownBubble(figure, bubblesLayer, transitionEl), 500));
+        const next = 1800 - drownState.defeat * 900 + Math.random() * 2500;
+        drownBubbleTimers.push(setTimeout(bubbleLoop, Math.max(700, next)));
+    }
+    drownBubbleTimers.push(setTimeout(bubbleLoop, 2500));
+
+    // 9s 后自发一次抬手
     drownTimers.push(setTimeout(() => {
+        if (drownState.armPhase === 'down' && !drownState.finished) {
+            drownState.armPhase = 'raising';
+            drownState.armPhaseAt = performance.now();
+        }
+    }, 9000));
+
+    // 9s 后显示中间文字
+    drownTimers.push(setTimeout(() => {
+        if (innerText) innerText.classList.add('show');
+    }, 9000));
+
+    // 12s 后浮出"向上浮"按钮
+    drownTimers.push(setTimeout(() => {
+        if (floatBtn) floatBtn.classList.add('show');
+    }, 12000));
+
+    // 90s + 5s 开始黑屏
+    drownTimers.push(setTimeout(() => {
+        if (fadeOverlay) fadeOverlay.classList.add('show');
+    }, DROWN_SINK_DURATION + DROWN_PAUSE_BEFORE_BLACK));
+
+    // 90s + 5s + 4s 弹出角色切换卡
+    drownTimers.push(setTimeout(() => {
+        drownState.finished = true;
+        if (floatBtn) {
+            floatBtn.classList.remove('show');
+            floatBtn.style.pointerEvents = 'none';
+        }
         showRoleSwitchModal();
-    }, 7000));
+    }, DROWN_SINK_DURATION + DROWN_PAUSE_BEFORE_BLACK + DROWN_BLACK_DURATION));
+
+    // 绑定"向上浮"按钮（只绑一次）
+    if (floatBtn && !drownBtnBound) {
+        drownBtnBound = true;
+        floatBtn.addEventListener('click', onDrownFloatPress);
+        floatBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            onDrownFloatPress();
+        }, { passive: false });
+    }
+}
+
+// === 悬浮颗粒 ===
+function createDrownParticles(layer, container) {
+    if (!layer) return;
+    layer.innerHTML = '';
+    const W = () => container.clientWidth;
+    const Hh = () => container.clientHeight;
+    const count = Math.max(20, Math.floor((W() * Hh()) / 25000));
+    for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'drown-particle';
+        const size = 1 + Math.random() * 3;
+        p.style.width  = size + 'px';
+        p.style.height = size + 'px';
+        p.style.left   = Math.random() * 100 + '%';
+        p.style.top    = Math.random() * 100 + '%';
+        p.style.opacity= (0.15 + Math.random() * 0.4).toFixed(2);
+        const dur = 20 + Math.random() * 30;
+        const delay= -Math.random() * dur;
+        p.style.animation = `drownParticleDrift-${i % 4} ${dur}s linear ${delay}s infinite`;
+        layer.appendChild(p);
+    }
+}
+
+// === 单个气泡（更大、更明显） ===
+function spawnDrownBubble(figure, container, scope) {
+    if (!container) return;
+    const rect = figure.getBoundingClientRect();
+    const scopeRect = scope ? scope.getBoundingClientRect() : null;
+    if (rect.top > (scopeRect ? scopeRect.bottom : window.innerHeight) ||
+        rect.bottom < (scopeRect ? scopeRect.top : 0)) return;
+
+    const bubble = document.createElement('div');
+    bubble.className = 'drown-bubble';
+
+    // 气泡明显放大：12 ~ 26px
+    const startSize = 12 + Math.random() * 14;
+    bubble.style.width  = startSize + 'px';
+    bubble.style.height = startSize + 'px';
+
+    // 起点：从"嘴部"位置（图形的头部下方）
+    const mouthX = rect.left + rect.width * 0.5 + (Math.random() - 0.5) * 10;
+    const mouthY = rect.top  + rect.height * 0.18;
+
+    bubble.style.left = (mouthX - startSize / 2) + 'px';
+    bubble.style.top  = mouthY + 'px';
+    bubble.style.opacity = '0';
+    container.appendChild(bubble);
+
+    const riseDistance = Math.max(80, mouthY - 20);
+    const riseDuration = 4500 + Math.random() * 4000;
+    const drift        = (Math.random() - 0.5) * 60;
+    const wobble       = (Math.random() - 0.5) * 24;
+    const t0           = performance.now();
+
+    (function animate(now) {
+        const t = Math.min(1, (now - t0) / riseDuration);
+        const y = mouthY - riseDistance * t;
+        const wx = Math.sin(t * 8 + t0 * 0.001) * wobble * (1 - t);
+        const x = mouthX + drift * t + wx;
+        const size = startSize * (1 - t * 0.85);
+        let op;
+        if (t < 0.1)      op = t / 0.1;
+        else if (t > 0.7) op = (1 - t) / 0.3;
+        else              op = 1;
+        op *= 0.85;
+
+        bubble.style.left   = (x - size / 2) + 'px';
+        bubble.style.top    = (y - size / 2) + 'px';
+        bubble.style.width  = size + 'px';
+        bubble.style.height = size + 'px';
+        bubble.style.opacity= op.toFixed(2);
+
+        if (t < 1) requestAnimationFrame(animate);
+        else bubble.remove();
+    })(t0);
+}
+
+// === 主文字 ===
+function updateDrownMainText() {
+    const innerText = document.getElementById('drown-inner-text');
+    if (!innerText) return;
+    let idx = 0;
+    if (drownState.pressCount >= 1) idx = 1;
+    if (drownState.pressCount >= 3) idx = 2;
+    if (drownState.pressCount >= 5) idx = 3;
+    if (drownState.pressCount >= 8) idx = 4;
+    innerText.textContent = drownMainTexts[idx];
+}
+
+// === "向上浮" 按钮事件 ===
+function onDrownFloatPress() {
+    if (drownState.finished) return;
+
+    drownState.pressCount++;
+    drownState.defeat       = Math.min(1, drownState.defeat + 0.16);
+    drownState.pressImpulse = 1;
+
+    // 立即触发一次挣扎
+    drownState.armPhase   = 'raising';
+    drownState.armPhaseAt = performance.now();
+    drownState.nextPause  = 0;
+
+    // 一口气吐一串气泡
+    const figure        = document.getElementById('drown-figure-wrap');
+    const bubblesLayer  = document.getElementById('drown-bubbles');
+    const transitionEl  = document.getElementById('transition-scene');
+    const burst = 4 + Math.min(6, Math.floor(drownState.defeat * 6));
+    for (let i = 0; i < burst; i++) {
+        drownBubbleTimers.push(setTimeout(() => spawnDrownBubble(figure, bubblesLayer, transitionEl), i * 90));
+    }
+
+    // 水波
+    if (transitionEl) {
+        const ripple = document.createElement('div');
+        ripple.className = 'drown-press-ripple';
+        transitionEl.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 2500);
+    }
+
+    // 反馈文字
+    if (transitionEl) {
+        const fb = document.createElement('div');
+        fb.className = 'drown-press-feedback';
+        fb.textContent = drownFeedbackTexts[Math.min(drownFeedbackTexts.length - 1, drownState.pressCount - 1)];
+        transitionEl.appendChild(fb);
+        setTimeout(() => fb.remove(), 3300);
+    }
+
+    // 按钮计数
+    const btnCount = document.getElementById('drown-btn-count');
+    if (btnCount) btnCount.textContent = drownState.pressCount;
+
+    // 按钮越按越暗淡
+    const dim = Math.max(0.25, 1 - drownState.pressCount * 0.09);
+    const floatBtn = document.getElementById('drown-float-btn');
+    if (floatBtn) {
+        floatBtn.style.color       = `rgba(220, 230, 245, ${0.85 * dim})`;
+        floatBtn.style.borderColor = `rgba(180, 210, 230, ${0.32 * dim})`;
+        floatBtn.style.background  = `rgba(20, 30, 45, ${0.42 * dim})`;
+    }
+
+    updateDrownMainText();
 }
 
 // 完成体验

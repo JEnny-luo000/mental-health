@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>「心影」剧情流程图</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #1a1f2e;
+            color: #d6dbe5;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .wrap { max-width: 1400px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #85929E, #F8E9A1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            text-align: center;
+            color: #85929E;
+            font-size: 0.95rem;
+            margin-bottom: 36px;
+            letter-spacing: 1px;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            justify-content: center;
+            margin-bottom: 28px;
+            font-size: 0.85rem;
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-box {
+            width: 22px; height: 14px; border-radius: 3px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .l-page { background: #2C3E50; }
+        .l-scene { background: #34495E; }
+        .l-choice { background: #8E44AD; border-radius: 50%; width: 16px; height: 16px; }
+        .l-inner { background: #C0392B; }
+        .l-positive { background: #F8E9A1; }
+        .chart-card {
+            background: #232a3d;
+            border: 1px solid #2f3850;
+            border-radius: 12px;
+            padding: 32px 24px;
+            margin-bottom: 28px;
+            overflow-x: auto;
+        }
+        .chart-card h2 {
+            font-size: 1.15rem;
+            color: #F8E9A1;
+            margin-bottom: 20px;
+            padding-left: 12px;
+            border-left: 3px solid #F8E9A1;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            min-width: max-content;
+        }
+        .mermaid svg { max-width: none !important; height: auto !important; }
+        .note {
+            font-size: 0.82rem;
+            color: #85929E;
+            margin-top: 14px;
+            line-height: 1.7;
+        }
+        @media (max-width: 768px) {
+            h1 { font-size: 1.5rem; letter-spacing: 2px; }
+            .chart-card { padding: 20px 12px; }
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <h1>「心影」剧情流程图</h1>
+    <p class="subtitle">抑郁症科普体验 · 完整剧情分支与交互节点</p>
+
+    <div class="legend">
+        <div class="legend-item"><span class="legend-box l-page"></span>页面</div>
+        <div class="legend-item"><span class="legend-box l-scene"></span>剧本场景</div>
+        <div class="legend-item"><span class="legend-box l-choice"></span>分支选择</div>
+        <div class="legend-item"><span class="legend-box l-inner"></span>内心独白</div>
+        <div class="legend-item"><span class="legend-box l-positive"></span>正面回溯支线</div>
+    </div>
+
+    <div class="chart-card">
+        <h2>主线：抑郁症沉浸体验 + 正面回溯支线</h2>
+        <pre class="mermaid">
+flowchart TD
+    Start([开始]) --> Opening["📖 开场引导页<br/>灰色城市 · 行人剪影<br/>打字机：你每天都会遇到很多人<br/>但你不知道他们心里正在经历什么"]
+
+    Opening -->|我准备好了| Hall["🚪 疾病选择大厅<br/>6扇门 仅抑郁症门可用<br/>「我已经很久没有真正笑过了」"]
+    Opening -->|先了解一下| Info["❓ 说明弹窗"]
+    Info -.->|关闭| Opening
+
+    Hall -->|点击抑郁症门| Intro["🎬 引导场景<br/>你是一名普通的上班族<br/>又是一个工作日的早晨"]
+
+    Intro -->|继续| S1["场景1 · 沉重唤醒<br/>睁眼动画 + 雾气刮刮乐<br/>擦除50%雾气自动散去"]
+    S1 -->|滑动关闹钟| Shake["📱 切换壁纸 · 手机震动"]
+    Shake --> M1["💭 连起床都需要这么大的力气…"]
+    M1 -->|继续| Choice2{"场景2 选择"}
+
+    Choice2 -->|出门| S2A["场景2A · 维持微笑<br/>长按面具维持微笑弧度<br/>心理独白逐条浮现"]
+    Choice2 -->|留下| S2B["场景2B · 自我攻击弹幕<br/>懒 / 矫情 / 没用 / 想太多<br/>15个词汇逐渐淹没屏幕"]
+
+    S2A -->|微笑值100%| M2A["💭 我没事，真的没事…"]
+    S2B -->|弹幕生成完毕| M2B["💭 我真的这么没用吗…"]
+
+    M2A -->|出门上班| S3A["场景3A · 工位上班<br/>点击任务按钮 20 次<br/>按钮随机移动 · 机械执行"]
+    M2B -->|继续躺着| S3B["场景3B · 在家无力<br/>尝试刷手机 / 看书 / 收拾 / 点外卖<br/>每件都中途放弃"]
+
+    S3A -->|完成20次| M3A["💭 我在做这些事，<br/>但好像不是我做的…<br/>没有意义，也没有尽头"]
+    S3B -->|四件都放弃| M3B["💭 明明有很多事可以做…<br/>可我什么都提不起劲"]
+
+    M3A -->|继续| S4["场景4 · 夜晚<br/>选项悬停即消逝<br/>发出消息的迟疑"]
+    M3B -->|继续| S4
+
+    S4 -->|所有选项消逝<br/>点击「试着发条消息」| Reply["💬 3秒后收到回复"]
+    Reply --> M4["💭 算了…"]
+    M4 -->|继续| S5["场景5 · 镜子<br/>点击镜子 · 裂痕浮现"]
+
+    S5 --> M5["💭 你可能觉得我看起来很正常<br/>但每天早上醒来<br/>都像是在水里挣扎…"]
+    M5 -->|继续| Trans["🌊 过渡动画<br/>溺水下沉 · 5.5s 渐黑"]
+
+    Trans --> RoleModal{"🎭 角色切换弹窗<br/>（黑屏后弹出）"}
+
+    RoleModal -->|开始陪伴者练习| PosScript["🌟 正面回溯剧本<br/>陪伴者练习室"]
+    RoleModal -->|跳过| Complete["✅ 完成体验<br/>记录 localStorage"]
+
+    PosScript --> PosIntro["引导 · 身份告知<br/>4.5s 自动进入"]
+    PosIntro --> Pos1["教学1 · 如何安静地听<br/>3 轮对话示范<br/>患者说 → 陪伴者回应 → 为什么"]
+
+    Pos1 -->|看完3轮 + 要点| Pos2{"教学2 · 回应「我没事」<br/>3 个选项 A / B / C"}
+    Pos2 -->|选 A 或 B| Pos2Bad["❌ 让 ta 关上门<br/>过早戳破 / 跳过情绪"]
+    Pos2Bad -.->|重新选择| Pos2
+    Pos2 -->|选 C 正确| Pos2Good["✅ 留出空间 + 明确「我在」"]
+
+    Pos2Good -->|进入实战| Pos3["实战3 · 与 AI 真实聊天<br/>Coze Agent 扮演抑郁朋友<br/>自由对话 · 随时结束"]
+    Pos3 -->|点击结束| PosDone["📊 正面完成页<br/>统计对话轮数"]
+    PosDone -.->|返回| Complete
+
+    Complete --> Science["📚 科普总结页<br/>视差滚动 · 误解澄清<br/>科学解释 · 建议 · 真实数据"]
+    Science -->|继续| Empathy["💌 共情档案页<br/>总结语 · 海报生成"]
+    Empathy -->|进入资源页| Resources["🆘 资源页<br/>心理援助热线 · 鼓励话语"]
+    Resources -.->|返回大厅| Hall
+
+    classDef page fill:#2C3E50,stroke:#5D6D7E,color:#fff,stroke-width:1.5px;
+    classDef scene fill:#34495E,stroke:#5D6D7E,color:#fff,stroke-width:1.5px;
+    classDef choice fill:#8E44AD,stroke:#A569BD,color:#fff,stroke-width:1.5px;
+    classDef inner fill:#C0392B,stroke:#E74C3C,color:#fff,stroke-width:1.5px;
+    classDef positive fill:#F8E9A1,stroke:#F4D03F,color:#333,stroke-width:1.5px;
+    classDef terminal fill:#1a1f2e,stroke:#85929E,color:#d6dbe5,stroke-width:2px;
+
+    class Opening,Hall,Intro,Science,Empathy,Resources page;
+    class S1,Shake,S2A,S2B,S3A,S3B,S4,S5,Trans,Reply scene;
+    class Choice2,RoleModal,Pos2 choice;
+    class M1,M2A,M2B,M3A,M3B,M4,M5,Pos2Bad inner;
+    class PosScript,PosIntro,Pos1,Pos2Good,Pos3,PosDone positive;
+    class Start,Complete,Info,Pos2Bad terminal;
+        </pre>
+        <p class="note">
+            提示：场景2 的「出门 / 留下」两条分支现在通往不同的场景——出门进入场景3A（工位麻木），留下进入场景3B（在家什么都提不起劲），两条线最终都汇入场景4（夜晚）。
+            过渡动画后的角色切换弹窗是全剧的关键转折——选择「开始陪伴者练习」会进入正面回溯支线，从患者视角切换到陪伴者视角，学习如何正确陪伴；选择「跳过」则直接进入科普总结。
+        </p>
+    </div>
+
+    <div class="chart-card">
+        <h2>双视角叙事结构</h2>
+        <pre class="mermaid">
+flowchart LR
+    subgraph 沉浸体验["🌑 第一视角 · 患者内心"]
+        direction TB
+        A1["醒来 · 起床困难"] --> A2["维持微笑 / 被弹幕攻击"] --> A3["机械工作"] --> A4["夜晚孤独"] --> A5["镜中对视 · 溺水"]
+    end
+
+    subgraph 回溯练习["🌅 第二视角 · 陪伴者练习"]
+        direction TB
+        B1["倾听 · 不追问不打断"] --> B2["回应「我没事」· 留出空间"] --> B3["真实对话 · AI 实战"]
+    end
+
+    A5 -->|角色切换| B1
+
+    classDef dark fill:#2C3E50,stroke:#5D6D7E,color:#fff;
+    classDef light fill:#F8E9A1,stroke:#F4D03F,color:#333;
+    class A1,A2,A3,A4,A5 dark;
+    class B1,B2,B3 light;
+        </pre>
+        <p class="note">
+            整个作品采用「先痛后悟」的双视角结构：前半段让用户以第一人称体验抑郁症患者的日常困境，后半段切换为陪伴者角色，通过教学 + 实战学习正确的陪伴方式，形成认知闭环。
+        </p>
+    </div>
+</div>
+
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+        themeVariables: {
+            darkMode: true,
+            background: '#232a3d',
+            primaryColor: '#34495E',
+            primaryTextColor: '#fff',
+            primaryBorderColor: '#5D6D7E',
+            lineColor: '#5D6D7E',
+            secondaryColor: '#2C3E50',
+            tertiaryColor: '#1a1f2e',
+            fontSize: '14px'
+        },
+        flowchart: {
+            curve: 'basis',
+            padding: 20,
+            nodeSpacing: 50,
+            rankSpacing: 60
+        }
+    });
+</script>
+</body>
+</html>

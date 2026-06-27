@@ -448,6 +448,10 @@ body {
     animation: screenShake 0.1s infinite;
 }
 
+.scene-2b-content.shaking {
+    animation: screenShake 0.1s infinite;
+}
+
 @keyframes screenShake {
     0% { transform: translate(0, 0); }
     20% { transform: translate(-3px, 2px); }
@@ -1035,6 +1039,222 @@ body {
     opacity: 0.5;
 }
 
+/* 场景3B：在家 · 什么都提不起劲 */
+.scene-3b-content {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, #2a2a35 0%, #1f1f28 60%, #16161e 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: filter 1.2s ease;
+}
+
+.scene-3b-content.all-given-up {
+    filter: brightness(0.5) saturate(0.4);
+}
+
+/* 卧室背景 */
+.home-bedroom {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.home-window {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 240px;
+    background: linear-gradient(180deg, #3a4a5a 0%, #2a3540 100%);
+    border: 10px solid #252530;
+    border-radius: 6px 6px 0 0;
+    opacity: 0.45;
+    box-shadow: 0 0 70px rgba(120,150,180,0.06);
+}
+
+.home-window::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(180,200,220,0.1) 0%, transparent 60%);
+}
+
+.home-bed {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 380px;
+    height: 120px;
+    background: linear-gradient(180deg, #3a3a44 0%, #2a2a32 100%);
+    border-radius: 20px 20px 0 0;
+    z-index: 2;
+}
+
+.bed-figure {
+    position: absolute;
+    top: -32px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 170px;
+    height: 64px;
+    background: linear-gradient(180deg, #4a4a54 0%, #3a3a44 100%);
+    border-radius: 50% 50% 30% 30%;
+    transition: transform 0.9s cubic-bezier(0.4,0,0.2,1);
+    z-index: 3;
+}
+
+/* 顶部提示 */
+.home-prompt {
+    position: absolute;
+    top: 13%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #85929E;
+    font-size: 20px;
+    letter-spacing: 2px;
+    z-index: 10;
+    transition: opacity 0.5s ease;
+    text-align: center;
+}
+
+/* 任务卡片容器 */
+.home-tasks {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    max-width: 640px;
+    padding: 0 20px;
+    margin-top: 18vh;
+}
+
+.home-task {
+    position: relative;
+    width: 130px;
+    padding: 18px 12px 14px;
+    background: rgba(60,65,80,0.55);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    text-align: center;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    transition: transform 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.6s ease, filter 0.6s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+    animation: taskFloat 3s ease-in-out infinite;
+}
+
+.home-task:nth-child(1) { animation-delay: 0s; }
+.home-task:nth-child(2) { animation-delay: 0.45s; }
+.home-task:nth-child(3) { animation-delay: 0.9s; }
+.home-task:nth-child(4) { animation-delay: 1.35s; }
+
+@keyframes taskFloat {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.home-task:hover {
+    border-color: rgba(255,255,255,0.22);
+    background: rgba(72,78,94,0.65);
+}
+
+.task-icon {
+    display: block;
+    font-size: 30px;
+    margin-bottom: 8px;
+    filter: grayscale(30%);
+}
+
+.task-label {
+    display: block;
+    color: #bdc3c7;
+    font-size: 13px;
+}
+
+/* 正在做：抬起放大 */
+.home-task.doing {
+    animation: none;
+    transform: translateY(-26px) scale(1.08);
+    border-color: rgba(248,233,161,0.4);
+    box-shadow: 0 14px 34px rgba(0,0,0,0.45);
+    cursor: default;
+}
+
+/* 进度条 */
+.task-progress {
+    margin-top: 10px;
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.home-task.doing .task-progress { opacity: 1; }
+
+.task-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #85929E, #bdc3c7);
+    border-radius: 2px;
+    transition: width 0.06s linear;
+}
+
+/* 放弃：灰化下沉 */
+.home-task.given-up {
+    animation: none;
+    transform: translateY(20px) scale(0.9);
+    opacity: 0.28;
+    filter: grayscale(85%) brightness(0.65);
+    cursor: default;
+    pointer-events: none;
+}
+
+.home-task.given-up .task-icon { filter: grayscale(100%); }
+.home-task.given-up .task-progress { opacity: 0; }
+
+/* "算了"浮现 */
+.task-giveup {
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, 10px);
+    color: #95a5a6;
+    font-style: italic;
+    font-size: 22px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 20;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    white-space: nowrap;
+}
+
+.task-giveup.visible {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+@media (max-width: 600px) {
+    .home-tasks { gap: 14px; margin-top: 22vh; }
+    .home-task { width: 108px; padding: 14px 8px 12px; }
+    .task-icon { font-size: 26px; }
+    .home-window { width: 150px; height: 190px; }
+    .home-bed { width: 300px; height: 100px; }
+    .bed-figure { width: 140px; height: 54px; top: -28px; }
+    .home-prompt { font-size: 17px; }
+}
+
 /* 场景3A：工位上班 - 麻木重复 */
 .scene-3a-content {
     display: flex;
@@ -1606,90 +1826,281 @@ body {
 /* ============ 正面回溯剧本（陪伴者练习室）样式 =============== */
 /* ============================================================ */
 
-/* ========== 溺水过渡 ========== */
+/* ========== 溺水过渡（真实场景，约 95 秒） ========== */
 #transition-scene {
-    background: linear-gradient(180deg, #1a3a5c 0%, #0a1828 100%);
+    background: linear-gradient(180deg,
+        #c2cdd6  0%,
+        #889aa8  8%,
+        #5a6b7c 18%,
+        #3a4856 32%,
+        #243040 48%,
+        #131b25 65%,
+        #080d13 82%,
+        #000000 100%);
     overflow: hidden;
 }
 
 .drown-water {
     position: absolute;
     inset: 0;
-    background:
-        radial-gradient(ellipse at 50% 0%, rgba(80, 120, 180, 0.25), transparent 60%),
-        radial-gradient(ellipse at 30% 80%, rgba(20, 50, 90, 0.35), transparent 70%),
-        radial-gradient(ellipse at 70% 30%, rgba(40, 70, 110, 0.3), transparent 65%);
+    background: linear-gradient(180deg,
+        rgba(220, 235, 245, 0.08) 0%,
+        transparent 50%,
+        rgba(0, 0, 0, 0.3) 100%);
     pointer-events: none;
+    z-index: 1;
 }
 
-.drown-figure {
+.drown-surface {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6%;
+    background:
+        linear-gradient(180deg, rgba(220, 235, 245, 0.45) 0%, transparent 100%),
+        radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.35) 0%, transparent 60%);
+    filter: blur(1.5px);
+    pointer-events: none;
+    z-index: 3;
+}
+
+.drown-rays {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 55%;
+    pointer-events: none;
+    opacity: 0.4;
+    mix-blend-mode: screen;
+    z-index: 2;
+}
+.drown-ray {
+    position: absolute;
+    top: -10%;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(180deg,
+        rgba(255, 255, 255, 0.65) 0%,
+        rgba(180, 210, 230, 0.25) 50%,
+        transparent 100%);
+    filter: blur(3px);
+    transform-origin: top center;
+}
+.drown-ray-1 { left: 28%; animation: drown-ray-sway1 8s  ease-in-out infinite; }
+.drown-ray-2 { left: 47%; width: 5px; opacity: 0.85; animation: drown-ray-sway2 10s ease-in-out infinite; }
+.drown-ray-3 { left: 64%;            animation: drown-ray-sway3 9s  ease-in-out infinite; }
+.drown-ray-4 { left: 78%; width: 2px; opacity: 0.55; animation: drown-ray-sway4 11s ease-in-out infinite; }
+@keyframes drown-ray-sway1 { 0%,100% { transform: rotate(8deg);   opacity:.5; } 50% { transform: rotate(12deg);   opacity:.8; } }
+@keyframes drown-ray-sway2 { 0%,100% { transform: rotate(-2deg);  opacity:.6; } 50% { transform: rotate(2deg);    opacity:.95;} }
+@keyframes drown-ray-sway3 { 0%,100% { transform: rotate(-10deg); opacity:.4; } 50% { transform: rotate(-6deg);   opacity:.7; } }
+@keyframes drown-ray-sway4 { 0%,100% { transform: rotate(-16deg); opacity:.3; } 50% { transform: rotate(-12deg);  opacity:.5; } }
+
+.drown-particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    overflow: hidden;
+}
+.drown-particle {
+    position: absolute;
+    background: rgba(180, 200, 220, 0.32);
+    border-radius: 50%;
+    filter: blur(1px);
+}
+@keyframes drownParticleDrift-0 { 0%{transform:translate(0,0)} 25%{transform:translate(8px,-5px)} 50%{transform:translate(-4px,-10px)} 75%{transform:translate(-10px,3px)} 100%{transform:translate(0,0)} }
+@keyframes drownParticleDrift-1 { 0%{transform:translate(0,0)} 33%{transform:translate(-6px,8px)} 66%{transform:translate(10px,-4px)} 100%{transform:translate(0,0)} }
+@keyframes drownParticleDrift-2 { 0%{transform:translate(0,0)} 50%{transform:translate(12px,6px)} 100%{transform:translate(0,0)} }
+@keyframes drownParticleDrift-3 { 0%{transform:translate(0,0)} 25%{transform:translate(-8px,-8px)} 50%{transform:translate(5px,-12px)} 75%{transform:translate(-3px,5px)} 100%{transform:translate(0,0)} }
+
+.drown-figure-wrap {
     position: absolute;
     left: 50%;
-    top: 30%;
-    transform: translateX(-50%);
-    width: 100px;
-    height: 200px;
-    filter: blur(1.5px);
-    opacity: 0.92;
-    animation: drown-sink 5.5s ease-in forwards;
+    top: 0;
+    width: clamp(70px, 14vmin, 110px);
+    height: clamp(140px, 28vmin, 220px);
     pointer-events: none;
+    z-index: 4;
+    will-change: transform;
+    filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.5));
 }
-
 .drown-figure-svg {
     width: 100%;
     height: 100%;
+    overflow: visible;
     display: block;
 }
+.drown-arm-left  { transform-origin: 50px 44px; }
+.drown-arm-right { transform-origin: 30px 44px; }
+.drown-head      { transform-origin: 40px 36px;  transition: transform 1.4s ease; }
+.drown-torso     { transform-origin: 40px 120px; transition: transform 1.4s ease; }
 
-@keyframes drown-sink {
-    0%   { transform: translate(-50%, 0)    scale(1);    opacity: 0.95; }
-    60%  { transform: translate(-50%, 6vh) scale(0.95); opacity: 0.78; }
-    100% { transform: translate(-50%, 10vh) scale(0.9);  opacity: 0.55; }
-}
-
-.drown-bubbles {
+.drown-bubbles-layer {
     position: absolute;
-    left: 50%;
-    top: 30%;
-    width: 60px;
-    height: 200px;
-    transform: translateX(-50%);
+    inset: 0;
     pointer-events: none;
+    z-index: 3;
+    overflow: hidden;
 }
-
 .drown-bubble {
     position: absolute;
-    bottom: 0;
-    width: 8px;
-    height: 8px;
-    background: rgba(180, 210, 240, 0.4);
-    border: 1px solid rgba(220, 235, 250, 0.5);
     border-radius: 50%;
-    animation: bubble-rise 3s ease-in infinite;
+    background: radial-gradient(circle at 35% 30%,
+        rgba(255, 255, 255, 0.85) 0%,
+        rgba(180, 210, 230, 0.4)  50%,
+        rgba(150, 180, 200, 0.15) 80%,
+        transparent                100%);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.5),
+                0 0 8px rgba(180, 210, 230, 0.3);
+    pointer-events: none;
+    will-change: transform, opacity;
 }
 
-@keyframes bubble-rise {
-    0%   { transform: translateY(0)     scale(0.6); opacity: 0; }
-    15%  { opacity: 0.7; }
-    100% { transform: translateY(-180px) scale(1.2); opacity: 0; }
+.drown-vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 4;
+    background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.45) 95%);
 }
 
-.drown-fade-overlay {
+.drown-depth-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    background: linear-gradient(180deg,
+        rgba(0, 0, 0, 0)    0%,
+        rgba(0, 0, 0, 0)   40%,
+        rgba(0, 5, 10, 0.3) 60%,
+        rgba(0, 5, 10, 0.7) 85%,
+        rgba(0, 0, 0, 0.95) 100%);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+}
+
+.drown-inner-text {
+    position: absolute;
+    left: 50%;
+    bottom: 22%;
+    transform: translateX(-50%);
+    color: rgba(190, 210, 225, 0.75);
+    font-size: clamp(14px, 1.8vmin, 18px);
+    letter-spacing: 0.5em;
+    text-align: center;
+    opacity: 0;
+    font-weight: 200;
+    text-shadow: 0 0 30px rgba(80, 130, 170, 0.6);
+    z-index: 6;
+    white-space: nowrap;
+    transition: opacity 4s ease;
+}
+.drown-inner-text.show { opacity: 1; }
+
+/* 向上浮 按钮 */
+.drown-float-btn {
+    position: absolute;
+    left: 50%;
+    bottom: 7%;
+    transform: translateX(-50%) translateY(30px);
+    padding: 14px 38px 11px;
+    background: rgba(20, 30, 45, 0.42);
+    border: 1px solid rgba(180, 210, 230, 0.32);
+    border-radius: 100px;
+    color: rgba(220, 230, 245, 0.85);
+    font-size: 13px;
+    letter-spacing: 0.4em;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 20;
+    font-family: inherit;
+    font-weight: 200;
+    user-select: none;
+    -webkit-user-select: none;
+    opacity: 0;
+    transition: opacity 2.5s ease, transform 0.25s ease,
+                background 1.5s ease, color 1.5s ease, border-color 1.5s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+.drown-float-btn.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    animation: drown-btn-breath 3.6s ease-in-out infinite;
+}
+.drown-float-btn:hover {
+    background: rgba(40, 55, 75, 0.6);
+    color: rgba(240, 245, 255, 0.95);
+}
+.drown-float-btn:active {
+    transform: translateX(-50%) scale(0.96);
+}
+.drown-float-btn .drown-btn-sub {
+    font-size: 9px;
+    opacity: 0.6;
+    letter-spacing: 0.3em;
+    font-weight: 200;
+}
+@keyframes drown-btn-breath {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(180, 210, 230, 0),    0 0 24px rgba(80, 130, 170, 0); }
+    50%      { box-shadow: 0 0 0 6px rgba(180, 210, 230, 0.06), 0 0 32px rgba(80, 130, 170, 0.2); }
+}
+
+.drown-press-ripple {
+    position: absolute;
+    left: 50%;
+    bottom: 7%;
+    width: 140px;
+    height: 140px;
+    margin-left: -70px;
+    margin-bottom: -25px;
+    border-radius: 50%;
+    border: 1px solid rgba(180, 210, 230, 0.5);
+    pointer-events: none;
+    z-index: 19;
+    animation: drown-ripple-out 2.4s cubic-bezier(0.2, 0.6, 0.3, 1) forwards;
+}
+@keyframes drown-ripple-out {
+    0%   { transform: scale(0.25); opacity: 0.8; border-width: 1.5px; }
+    60%  { opacity: 0.3; }
+    100% { transform: scale(4);   opacity: 0;   border-width: 0.4px; }
+}
+
+.drown-press-feedback {
+    position: absolute;
+    left: 50%;
+    bottom: calc(7% + 80px);
+    transform: translateX(-50%);
+    color: rgba(200, 220, 240, 0.85);
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 21;
+    font-weight: 200;
+    text-shadow: 0 0 20px rgba(80, 130, 170, 0.5);
+    animation: drown-feedback-float 3.2s ease-out forwards;
+}
+@keyframes drown-feedback-float {
+    0%   { opacity: 0;    transform: translate(-50%, 18px); }
+    18%  { opacity: 0.95; transform: translate(-50%, 0); }
+    100% { opacity: 0;    transform: translate(-50%, -45px); }
+}
+
+.drown-final-black {
     position: absolute;
     inset: 0;
     background: #000;
     opacity: 0;
     pointer-events: none;
+    z-index: 30;
+    transition: opacity 4s ease-in;
 }
-
-.drown-fade-overlay.darkening {
-    animation: drown-to-black 1.5s ease-in 0.5s forwards;
-}
-
-@keyframes drown-to-black {
-    0%   { opacity: 0; }
-    100% { opacity: 1; }
-}
+.drown-final-black.show { opacity: 1; }
 
 /* ========== 角色切换弹窗 ========== */
 .role-switch-modal {

@@ -193,6 +193,43 @@
                     </div>
                 </div>
 
+                <!-- 场景3B：在家 · 什么都提不起劲 -->
+                <div id="scene-3b" class="scene">
+                    <div class="scene-3b-content">
+                        <div class="home-bedroom">
+                            <div class="home-window"></div>
+                            <div class="home-bed">
+                                <div class="bed-figure" id="bed-figure"></div>
+                            </div>
+                        </div>
+                        <div class="home-prompt" id="home-prompt">做点什么吧…</div>
+                        <div class="task-giveup" id="task-giveup">……算了</div>
+                        <div class="home-tasks" id="home-tasks">
+                            <div class="home-task" data-task="phone">
+                                <span class="task-icon">📱</span>
+                                <span class="task-label">刷会儿手机</span>
+                                <div class="task-progress"><div class="task-progress-fill"></div></div>
+                            </div>
+                            <div class="home-task" data-task="book">
+                                <span class="task-icon">📖</span>
+                                <span class="task-label">翻开那本书</span>
+                                <div class="task-progress"><div class="task-progress-fill"></div></div>
+                            </div>
+                            <div class="home-task" data-task="clean">
+                                <span class="task-icon">🧹</span>
+                                <span class="task-label">收拾一下房间</span>
+                                <div class="task-progress"><div class="task-progress-fill"></div></div>
+                            </div>
+                            <div class="home-task" data-task="food">
+                                <span class="task-icon">🍜</span>
+                                <span class="task-label">点个外卖</span>
+                                <div class="task-progress"><div class="task-progress-fill"></div></div>
+                            </div>
+                        </div>
+                        <div class="inner-monologue" id="scene3b-monologue"></div>
+                    </div>
+                </div>
+
                 <!-- 场景3A：工位上班 - 麻木重复 -->
                 <div id="scene-3a" class="scene">
                     <div class="scene-3a-content">
@@ -273,28 +310,57 @@
                     </div>
                 </div>
 
-                <!-- 过渡动画：溺水下沉 → 渐黑 -->
+                <!-- 过渡动画：溺水下沉 → 渐黑（真实场景，约 95 秒） -->
                 <div id="transition-scene" class="scene">
-                    <div class="transition-content">
-                        <div class="drown-water"></div>
-                        <div class="drown-figure" id="drown-figure">
-                            <svg viewBox="0 0 80 160" class="drown-figure-svg">
-                                <!-- 头 -->
-                                <circle cx="40" cy="22" r="16" fill="rgba(20,28,40,0.85)"/>
-                                <!-- 躯干 -->
-                                <path d="M 28 40 L 52 40 L 56 100 Q 56 110 50 110 L 30 110 Q 24 110 24 100 Z"
-                                      fill="rgba(20,28,40,0.85)"/>
-                                <!-- 双臂无力下垂 -->
-                                <path d="M 30 46 Q 18 70 22 100" stroke="rgba(20,28,40,0.85)" stroke-width="7" fill="none" stroke-linecap="round"/>
-                                <path d="M 50 46 Q 62 70 58 100" stroke="rgba(20,28,40,0.85)" stroke-width="7" fill="none" stroke-linecap="round"/>
-                                <!-- 双腿 -->
-                                <path d="M 34 110 Q 32 130 28 150" stroke="rgba(20,28,40,0.85)" stroke-width="9" fill="none" stroke-linecap="round"/>
-                                <path d="M 46 110 Q 48 130 52 150" stroke="rgba(20,28,40,0.85)" stroke-width="9" fill="none" stroke-linecap="round"/>
-                            </svg>
-                        </div>
-                        <div class="drown-bubbles" id="drown-bubbles"></div>
-                        <div class="drown-fade-overlay" id="drown-fade-overlay"></div>
+                    <div class="drown-water"></div>
+                    <div class="drown-rays">
+                        <div class="drown-ray drown-ray-1"></div>
+                        <div class="drown-ray drown-ray-2"></div>
+                        <div class="drown-ray drown-ray-3"></div>
+                        <div class="drown-ray drown-ray-4"></div>
                     </div>
+                    <div class="drown-particles" id="drown-particles"></div>
+                    <div class="drown-surface"></div>
+
+                    <div class="drown-figure-wrap" id="drown-figure-wrap">
+                        <svg class="drown-figure-svg" viewBox="0 0 80 180" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <radialGradient id="drown-aura" cx="50%" cy="50%" r="60%">
+                                    <stop offset="0%" stop-color="rgba(20, 30, 45, 0.45)"/>
+                                    <stop offset="100%" stop-color="rgba(20, 30, 45, 0)"/>
+                                </radialGradient>
+                            </defs>
+                            <ellipse cx="40" cy="100" rx="42" ry="65" fill="url(#drown-aura)"/>
+                            <g class="drown-legs">
+                                <path d="M 34 120 Q 30 145 26 170" stroke="rgba(20,28,40,0.92)" stroke-width="9" fill="none" stroke-linecap="round"/>
+                                <path d="M 46 120 Q 50 145 54 170" stroke="rgba(20,28,40,0.92)" stroke-width="9" fill="none" stroke-linecap="round"/>
+                            </g>
+                            <g class="drown-torso" id="drown-torso">
+                                <path d="M 28 38 Q 40 40 52 38 L 55 110 Q 55 120 48 120 L 32 120 Q 25 120 25 110 Z" fill="rgba(20,28,40,0.92)"/>
+                            </g>
+                            <g class="drown-arm-left" id="drown-arm-left">
+                                <path d="M 50 44 Q 60 70 56 110" stroke="rgba(20,28,40,0.92)" stroke-width="7" fill="none" stroke-linecap="round"/>
+                            </g>
+                            <g class="drown-arm-right" id="drown-arm-right">
+                                <path d="M 30 44 Q 20 70 24 110" stroke="rgba(20,28,40,0.92)" stroke-width="7" fill="none" stroke-linecap="round"/>
+                            </g>
+                            <g class="drown-head" id="drown-head">
+                                <circle cx="40" cy="22" r="14" fill="rgba(20,28,40,0.92)"/>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="drown-bubbles-layer" id="drown-bubbles"></div>
+                    <div class="drown-vignette" id="drown-vignette"></div>
+                    <div class="drown-depth-overlay" id="drown-depth-overlay"></div>
+                    <div class="drown-inner-text" id="drown-inner-text">正在下沉</div>
+
+                    <button id="drown-float-btn" class="drown-float-btn" type="button" aria-label="向上浮">
+                        <span class="drown-btn-label">向 上 浮</span>
+                        <span class="drown-btn-sub">已尝试 <span id="drown-btn-count">0</span> 次</span>
+                    </button>
+
+                    <div class="drown-final-black" id="drown-final-black"></div>
                 </div>
             </div>
         </div>
@@ -510,6 +576,7 @@
         { type: 'scene', id: 'scene-2-choice',   label: '起床选择' },
         { type: 'scene', id: 'scene-2a',         label: '微笑出门' },
         { type: 'scene', id: 'scene-2b',         label: '弹幕自伤' },
+        { type: 'scene', id: 'scene-3b',         label: '在家无力' },
         { type: 'scene', id: 'scene-3a',         label: '工位麻木' },
         { type: 'scene', id: 'scene-4',          label: '夜晚消逝' },
         { type: 'scene', id: 'scene-5',          label: '镜子' },
