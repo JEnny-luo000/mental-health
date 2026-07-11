@@ -1464,99 +1464,404 @@ body {
     border-radius: 6px;
 }
 
-/* 场景4 */
-.scene-4-content {
+/* ===== 场景3A 增强：老板施压 / 倒计时 / 工资 / 加班 ===== */
+
+/* 顶部状态栏 */
+.office-status-bar {
+    position: absolute;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    background-color: #0d0d1a;
-}
-
-.night-options {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    margin-bottom: 40px;
-}
-
-.night-option {
-    padding: 15px 30px;
-    background-color: var(--secondary-color);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.5s ease;
-}
-
-.night-option.fading {
-    opacity: 0;
-    transform: scale(0.5);
+    gap: 24px;
+    z-index: 20;
     pointer-events: none;
 }
 
-.btn-message {
-    margin-bottom: 30px;
-}
-
-.message-bubble, .reply-bubble {
-    padding: 15px 25px;
-    border-radius: 20px;
-    max-width: 300px;
-    text-align: center;
-}
-
-.message-bubble {
-    background-color: #3498db;
-    margin-bottom: 20px;
-}
-
-.reply-bubble {
-    background-color: var(--secondary-color);
-}
-
-/* 场景5 */
-.scene-5-content {
+.status-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
-
-.mirror-container {
-    position: relative;
-}
-
-.mirror {
-    width: 200px;
-    height: 350px;
-    background-color: #bdc3c7;
+    padding: 8px 18px;
     border-radius: 8px;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-family: 'Courier New', monospace;
+    min-width: 110px;
+}
+
+.status-label {
+    font-size: 10px;
+    color: #8a8a92;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+}
+
+.status-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #e0e0e8;
+}
+
+/* 工资状态：扣钱时变红 + 抖动 */
+.salary-status.deducting {
+    animation: salaryShake 0.45s ease;
+}
+.salary-status.deducting .status-value {
+    color: #ff5555;
+}
+.salary-status .status-value {
+    transition: color 0.3s ease;
+}
+
+@keyframes salaryShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+}
+
+/* 倒计时状态 */
+.countdown-status .status-value {
+    transition: color 0.3s ease;
+}
+.countdown-status.warning .status-value {
+    color: #ffaa33;
+    animation: countdownPulse 1s ease-in-out infinite;
+}
+.countdown-status.danger .status-value {
+    color: #ff3333;
+    animation: countdownPulse 0.5s ease-in-out infinite;
+}
+
+@keyframes countdownPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+/* 老板消息弹窗 */
+.boss-message {
+    position: absolute;
+    top: 110px;
+    left: 50%;
+    transform: translate(-50%, -20px);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 22px;
+    background: linear-gradient(180deg, #5a1a1a 0%, #3a0d0d 100%);
+    border: 2px solid #8a2a2a;
+    border-radius: 10px;
+    box-shadow: 0 6px 24px rgba(255, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.5);
+    color: #ffcccc;
+    font-size: 15px;
+    font-weight: 600;
+    z-index: 30;
+    opacity: 0;
+    pointer-events: none;
+    max-width: 80vw;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.boss-message.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    animation: bossShake 0.5s ease;
+}
+
+.boss-avatar {
+    font-size: 22px;
+    filter: drop-shadow(0 0 4px rgba(255, 50, 50, 0.5));
+}
+
+.boss-text {
+    line-height: 1.4;
+}
+
+@keyframes bossShake {
+    0%, 100% { transform: translate(-50%, 0); }
+    25% { transform: translate(calc(-50% - 4px), 0); }
+    50% { transform: translate(calc(-50% + 4px), 0); }
+    75% { transform: translate(calc(-50% - 2px), 0); }
+}
+
+/* 加班警告 */
+.overtime-warning {
+    position: absolute;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 14px 30px;
+    background: linear-gradient(180deg, #4a0d0d 0%, #2a0808 100%);
+    border: 2px solid #ff3333;
+    border-radius: 8px;
+    color: #ffaaaa;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    z-index: 25;
+    opacity: 0;
+    pointer-events: none;
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+    transition: opacity 0.4s ease;
+}
+
+.overtime-warning.show {
+    opacity: 1;
+    animation: overtimePulse 1.4s ease-in-out infinite;
+}
+
+@keyframes overtimePulse {
+    0%, 100% {
+        box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+        border-color: #ff3333;
+    }
+    50% {
+        box-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
+        border-color: #ff6666;
+    }
+}
+
+/* 整体场景在加班时变暗红 */
+.scene-3a-content.overtime {
+    background: linear-gradient(180deg, #3a1a1a 0%, #2a0d0d 100%);
+}
+.scene-3a-content.overtime .cubicle-wall {
+    background: linear-gradient(90deg, #5a3a3a 0%, #6a4a4a 50%, #5a3a3a 100%);
+}
+
+/* 扣钱飘字效果 */
+.salary-deduct-float {
+    position: absolute;
+    color: #ff5555;
+    font-size: 22px;
+    font-weight: 800;
+    font-family: 'Courier New', monospace;
+    pointer-events: none;
+    z-index: 40;
+    text-shadow: 0 0 8px rgba(255, 50, 50, 0.6);
+    animation: deductFloat 1.4s ease-out forwards;
+}
+
+@keyframes deductFloat {
+    0% {
+        opacity: 0;
+        transform: translateY(0) scale(0.8);
+    }
+    20% {
+        opacity: 1;
+        transform: translateY(-10px) scale(1.1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-50px) scale(1);
+    }
+}
+
+/* 响应式：小屏适配 */
+@media (max-width: 640px) {
+    .office-status-bar { gap: 12px; }
+    .status-item { min-width: 90px; padding: 6px 12px; }
+    .status-value { font-size: 15px; }
+    .boss-message { font-size: 13px; padding: 10px 16px; max-width: 90vw; }
+    .overtime-warning { font-size: 13px; padding: 10px 18px; }
+}
+
+/* 场景4：微信聊天界面 */
+.scene-4-content {
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    border: 8px solid var(--primary-color);
-}
-
-.mirror-reflection {
-    width: 120px;
-    height: 250px;
-    background-color: #95a5a6;
-    border-radius: 8px;
-}
-
-.crack-overlay {
-    position: absolute;
     width: 100%;
     height: 100%;
-    top: 0;
-    left: 0;
-    background: linear-gradient(45deg, transparent 49%, rgba(0,0,0,0.8) 50%, transparent 51%);
+    background-color: #1a1f2e;
+    padding: 20px;
+    overflow: hidden;
+}
+
+.wechat-screen {
+    width: 100%;
+    max-width: 380px;
+    height: 100%;
+    max-height: 760px;
+    background: #ededed;
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+/* 状态栏 */
+.wechat-status-bar {
+    flex-shrink: 0;
+    height: 28px;
+    background: #ededed;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 18px;
+    font-size: 13px;
+    color: #000;
+    font-weight: 600;
+}
+
+.wechat-status-icons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+}
+
+.wechat-icon-moon,
+.wechat-icon-signal {
+    font-size: 12px;
+}
+
+.wechat-icon-battery {
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid #000;
+    border-radius: 3px;
+    padding: 0 3px;
+    line-height: 1.2;
+}
+
+/* 导航栏 */
+.wechat-nav {
+    flex-shrink: 0;
+    height: 44px;
+    background: #ededed;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 12px;
+    border-bottom: 1px solid #d6d6d6;
+    position: relative;
+}
+
+.wechat-back {
+    font-size: 30px;
+    color: #000;
+    line-height: 1;
+    width: 32px;
+    cursor: default;
+}
+
+.wechat-title {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 17px;
+    font-weight: 600;
+    color: #000;
+    white-space: nowrap;
+}
+
+.wechat-more {
+    font-size: 18px;
+    color: #000;
+    letter-spacing: 1px;
+    line-height: 1;
+    width: 32px;
+    text-align: right;
+    cursor: default;
+}
+
+/* 聊天区域 */
+.wechat-chat {
+    flex: 1;
+    background: #ededed;
+    padding: 18px 12px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.wechat-chat::-webkit-scrollbar { width: 4px; }
+.wechat-chat::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 2px; }
+
+/* 气泡基础 */
+.wechat-bubble {
+    max-width: 70%;
+    padding: 9px 13px;
+    border-radius: 6px;
+    font-size: 15px;
+    line-height: 1.45;
+    word-break: break-word;
+    color: #000;
+    position: relative;
+    animation: bubbleIn 0.32s cubic-bezier(0.2, 0.8, 0.3, 1);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+@keyframes bubbleIn {
+    from { opacity: 0; transform: translateY(8px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 我（患者）— 右侧绿色气泡 */
+.wechat-bubble-me {
+    align-self: flex-end;
+    background: #95ec69;
+    border-top-right-radius: 2px;
+}
+
+/* 朋友 — 左侧白色气泡 */
+.wechat-bubble-friend {
+    align-self: flex-start;
+    background: #ffffff;
+    border-top-left-radius: 2px;
+}
+
+/* 底部输入栏 */
+.wechat-input-bar {
+    flex-shrink: 0;
+    height: 52px;
+    background: #f7f7f7;
+    border-top: 1px solid #d6d6d6;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    gap: 8px;
+}
+
+.wechat-icon-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #000;
+    flex-shrink: 0;
+    cursor: default;
+}
+
+.wechat-voice,
+.wechat-emoji,
+.wechat-plus {
+    color: #000;
+}
+
+.wechat-input-box {
+    flex: 1;
+    height: 36px;
+    background: #ffffff;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+}
+
+/* 小屏适配 */
+@media (max-width: 480px) {
+    .scene-4-content { padding: 8px; }
+    .wechat-screen { border-radius: 10px; max-height: none; }
+    .wechat-bubble { font-size: 14px; }
 }
 
 /* 过渡场景 */
@@ -1604,9 +1909,10 @@ body {
 
 .science-section {
     margin-bottom: 60px;
-    opacity: 0;
-    transform: translateY(30px);
-    transition: all 1.5s ease;
+    /* 修复：原本 opacity:0 + 需要 .visible 类才显示，但 JS 并没有添加这个类，导致文字完全看不见
+       改为默认可见，后续如有滚动渐入需求可再单独加 IntersectionObserver */
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .science-section.visible {
@@ -1644,17 +1950,19 @@ body {
     padding: 20px 0;
 }
 
-/* 共情档案页 */
+/* 共情档案页（已与科普内容合并：上方共情档案，下方科普） */
 #empathy-page {
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    align-items: stretch;
+    justify-content: flex-start;
     background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .empathy-content {
     text-align: center;
-    padding: 20px;
+    padding: 60px 20px 30px;
 }
 
 .empathy-icon {
@@ -1676,57 +1984,29 @@ body {
     margin: 0 10px;
 }
 
-/* 资源页 */
-#resources-page {
-    flex-direction: column;
-    align-items: center;
+/* 共情档案：操作按钮组 + 向下滚动提示 */
+.empathy-actions {
+    display: flex;
     justify-content: center;
-    background: linear-gradient(180deg, #34495e 0%, #2c3e50 100%);
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
 }
 
-.resources-content {
-    text-align: center;
-    padding: 20px;
-    max-width: 900px;
+.empathy-scroll-hint {
+    color: rgba(236, 240, 241, 0.45);
+    font-size: 14px;
+    letter-spacing: 4px;
+    margin-top: 8px;
+    animation: empathy-hint-pulse 2.4s ease-in-out infinite;
 }
 
-.resources-content h1 {
-    font-size: 32px;
-    margin-bottom: 40px;
+@keyframes empathy-hint-pulse {
+    0%, 100% { opacity: 0.35; transform: translateY(0); }
+    50%      { opacity: 0.8;  transform: translateY(4px); }
 }
 
-.resource-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 40px;
-}
 
-.resource-card {
-    background-color: var(--secondary-color);
-    padding: 30px;
-    border-radius: 12px;
-}
-
-.resource-card h2 {
-    font-size: 18px;
-    margin-bottom: 15px;
-}
-
-.hotline-number {
-    font-size: 28px;
-    font-weight: bold;
-    color: var(--healing-light);
-}
-
-.encouragement-text {
-    margin-bottom: 40px;
-}
-
-.encouragement-text p {
-    font-size: 20px;
-    margin-bottom: 10px;
-}
 
 /* 继续按钮样式 */
 .continue-btn {
@@ -1840,37 +2120,126 @@ body {
     overflow: hidden;
 }
 
+/* ============================================================
+   过渡动画 · 溺水下沉（第一视角）
+   --drown-depth : 0 = 刚入水（头顶水面很近）  1 = 极深处（几乎全黑）
+   整体效果：随着 --drown-depth 变大，水面上移缩小、光柱变暗、暗角收紧、画面模糊
+   ============================================================ */
+
+#transition-scene {
+    /* 当前深度，由 JS 实时更新；CSS 内所有效果都基于这个变量 */
+    --drown-depth: 0;
+}
+
+/* 水体基底：深蓝梯度（顶部微亮，底部深黑） */
 .drown-water {
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg,
-        rgba(220, 235, 245, 0.08) 0%,
-        transparent 50%,
-        rgba(0, 0, 0, 0.3) 100%);
+    background:
+        radial-gradient(ellipse at 50% 0%,
+            rgba(70, 110, 150, calc(0.55 - var(--drown-depth) * 0.45)) 0%,
+            rgba(15, 30, 55, calc(0.85 - var(--drown-depth) * 0.25)) 35%,
+            rgba(2, 6, 14, 1) 100%),
+        linear-gradient(180deg, #0c1a2c 0%, #050a14 100%);
     pointer-events: none;
     z-index: 1;
+    transition: filter 0.6s ease;
 }
 
+/* 仰视"世界"：水面 + 光柱 + 颗粒，会随深度整体上移/缩小/变暗 */
+.drown-pov-world {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 2;
+    /* 整体随深度：轻微下移（产生"水面往头顶退"的感觉），缩放缩小，亮度降低 */
+    transform-origin: 50% 0%;
+    transform:
+        translateY(calc(var(--drown-depth) * -8%))
+        scale(calc(1 - var(--drown-depth) * 0.18));
+    filter:
+        brightness(calc(1 - var(--drown-depth) * 0.65))
+        contrast(calc(1 - var(--drown-depth) * 0.15));
+    transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+                filter 0.9s ease;
+    will-change: transform, filter;
+}
+
+/* 水面：明暗分界线 + 上方天光晕 */
 .drown-surface {
     position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 6%;
-    background:
-        linear-gradient(180deg, rgba(220, 235, 245, 0.45) 0%, transparent 100%),
-        radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.35) 0%, transparent 60%);
-    filter: blur(1.5px);
+    top: -6%;
+    left: 50%;
+    width: 220%;
+    height: 30%;
+    transform: translateX(-50%);
     pointer-events: none;
-    z-index: 3;
+    will-change: transform, opacity;
+}
+/* 透过水面看出去的天：明亮的椭圆光晕 */
+.drown-surface-sky {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 90%;
+    height: 100%;
+    transform: translateX(-50%);
+    background: radial-gradient(ellipse at 50% 30%,
+        rgba(240, 248, 255, 0.95) 0%,
+        rgba(180, 215, 235, 0.55) 35%,
+        rgba(120, 170, 210, 0.18) 65%,
+        transparent 100%);
+    filter: blur(6px);
+}
+/* 水面分界线：从水下看，水平一条微微波动的亮线 */
+.drown-surface-line {
+    position: absolute;
+    bottom: 8%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(220, 235, 250, 0.85) 20%,
+        rgba(255, 255, 255, 0.95) 50%,
+        rgba(220, 235, 250, 0.85) 80%,
+        transparent 100%);
+    box-shadow:
+        0 0 12px rgba(200, 225, 245, 0.7),
+        0 0 24px rgba(160, 200, 230, 0.4);
+    animation: drown-surface-wave 4s ease-in-out infinite;
+}
+@keyframes drown-surface-wave {
+    0%, 100% { transform: translateY(0) scaleY(1);     opacity: 0.95; }
+    50%      { transform: translateY(3px) scaleY(1.4); opacity: 0.7;  }
+}
+/* 水面下方的光散射（让水面下方有"水透光"的感觉） */
+.drown-surface-glow {
+    position: absolute;
+    bottom: -8%;
+    left: 50%;
+    width: 100%;
+    height: 24%;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg,
+        rgba(180, 215, 240, 0.45) 0%,
+        rgba(140, 190, 220, 0.15) 40%,
+        transparent 100%);
+    filter: blur(8px);
 }
 
+/* 丁达尔光柱：从水面斜插下来 */
 .drown-rays {
     position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 55%;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 70%;
     pointer-events: none;
-    opacity: 0.4;
+    opacity: calc(0.6 - var(--drown-depth) * 0.55);
     mix-blend-mode: screen;
-    z-index: 2;
+    transition: opacity 0.9s ease;
 }
 .drown-ray {
     position: absolute;
@@ -1878,8 +2247,8 @@ body {
     width: 3px;
     height: 100%;
     background: linear-gradient(180deg,
-        rgba(255, 255, 255, 0.65) 0%,
-        rgba(180, 210, 230, 0.25) 50%,
+        rgba(255, 255, 255, 0.7) 0%,
+        rgba(180, 210, 230, 0.3) 50%,
         transparent 100%);
     filter: blur(3px);
     transform-origin: top center;
@@ -1893,12 +2262,14 @@ body {
 @keyframes drown-ray-sway3 { 0%,100% { transform: rotate(-10deg); opacity:.4; } 50% { transform: rotate(-6deg);   opacity:.7; } }
 @keyframes drown-ray-sway4 { 0%,100% { transform: rotate(-16deg); opacity:.3; } 50% { transform: rotate(-12deg);  opacity:.5; } }
 
+/* 悬浮颗粒（漂浮的尘埃感） */
 .drown-particles {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    z-index: 2;
     overflow: hidden;
+    opacity: calc(1 - var(--drown-depth) * 0.7);
+    transition: opacity 0.9s ease;
 }
 .drown-particle {
     position: absolute;
@@ -1911,33 +2282,12 @@ body {
 @keyframes drownParticleDrift-2 { 0%{transform:translate(0,0)} 50%{transform:translate(12px,6px)} 100%{transform:translate(0,0)} }
 @keyframes drownParticleDrift-3 { 0%{transform:translate(0,0)} 25%{transform:translate(-8px,-8px)} 50%{transform:translate(5px,-12px)} 75%{transform:translate(-3px,5px)} 100%{transform:translate(0,0)} }
 
-.drown-figure-wrap {
-    position: absolute;
-    left: 50%;
-    top: 0;
-    width: clamp(70px, 14vmin, 110px);
-    height: clamp(140px, 28vmin, 220px);
-    pointer-events: none;
-    z-index: 4;
-    will-change: transform;
-    filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.5));
-}
-.drown-figure-svg {
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-    display: block;
-}
-.drown-arm-left  { transform-origin: 50px 44px; }
-.drown-arm-right { transform-origin: 30px 44px; }
-.drown-head      { transform-origin: 40px 36px;  transition: transform 1.4s ease; }
-.drown-torso     { transform-origin: 40px 120px; transition: transform 1.4s ease; }
-
+/* 气泡层（自己的呼吸） */
 .drown-bubbles-layer {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    z-index: 3;
+    z-index: 5;
     overflow: hidden;
 }
 .drown-bubble {
@@ -1955,48 +2305,55 @@ body {
     will-change: transform, opacity;
 }
 
+/* 暗角（中央清晰，边缘被吞没） */
 .drown-vignette {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    z-index: 4;
-    background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.45) 95%);
+    z-index: 6;
+    background: radial-gradient(ellipse at center,
+        transparent 28%,
+        rgba(0, 0, 0, calc(0.35 + var(--drown-depth) * 0.45)) 95%);
+    transition: background 0.9s ease;
 }
 
+/* 深度压暗（从底部逐渐上涌的黑暗） */
 .drown-depth-overlay {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    z-index: 5;
+    z-index: 7;
     background: linear-gradient(180deg,
         rgba(0, 0, 0, 0)    0%,
-        rgba(0, 0, 0, 0)   40%,
-        rgba(0, 5, 10, 0.3) 60%,
-        rgba(0, 5, 10, 0.7) 85%,
-        rgba(0, 0, 0, 0.95) 100%);
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
+        rgba(0, 0, 0, 0)   calc(40% - var(--drown-depth) * 30%),
+        rgba(0, 5, 10, calc(0.25 + var(--drown-depth) * 0.45)) calc(60% - var(--drown-depth) * 20%),
+        rgba(0, 5, 10, calc(0.65 + var(--drown-depth) * 0.3))  calc(90% - var(--drown-depth) * 10%),
+        rgba(0, 0, 0, calc(0.92 + var(--drown-depth) * 0.08)) 100%);
+    backdrop-filter: blur(calc(var(--drown-depth) * 3.2px));
+    -webkit-backdrop-filter: blur(calc(var(--drown-depth) * 3.2px));
+    transition: backdrop-filter 0.9s ease;
 }
 
+/* 内心独白 */
 .drown-inner-text {
     position: absolute;
     left: 50%;
     bottom: 22%;
     transform: translateX(-50%);
-    color: rgba(190, 210, 225, 0.75);
+    color: rgba(190, 210, 225, calc(0.85 - var(--drown-depth) * 0.4));
     font-size: clamp(14px, 1.8vmin, 18px);
     letter-spacing: 0.5em;
     text-align: center;
     opacity: 0;
     font-weight: 200;
     text-shadow: 0 0 30px rgba(80, 130, 170, 0.6);
-    z-index: 6;
+    z-index: 8;
     white-space: nowrap;
-    transition: opacity 4s ease;
+    transition: opacity 4s ease, color 0.9s ease;
 }
 .drown-inner-text.show { opacity: 1; }
 
-/* 向上浮 按钮 */
+/* "尝试上浮" 按钮 */
 .drown-float-btn {
     position: absolute;
     left: 50%;
@@ -2050,6 +2407,7 @@ body {
     50%      { box-shadow: 0 0 0 6px rgba(180, 210, 230, 0.06), 0 0 32px rgba(80, 130, 170, 0.2); }
 }
 
+/* 点击瞬间的水波反馈 */
 .drown-press-ripple {
     position: absolute;
     left: 50%;
@@ -2070,6 +2428,7 @@ body {
     100% { transform: scale(4);   opacity: 0;   border-width: 0.4px; }
 }
 
+/* 点击后的短暂反馈文字 */
 .drown-press-feedback {
     position: absolute;
     left: 50%;
@@ -2091,6 +2450,7 @@ body {
     100% { opacity: 0;    transform: translate(-50%, -45px); }
 }
 
+/* 最终黑屏 */
 .drown-final-black {
     position: absolute;
     inset: 0;
@@ -2456,6 +2816,149 @@ body {
 
 .pos-summary-card .pos-next-btn {
     margin-top: 18px;
+}
+
+/* 教学场景 1.5：真实案例（微信聊天回放 + 教学点标注） */
+.pos-wechat-screen {
+    width: 100%;
+    max-width: 420px;
+    height: 460px;
+    background: #ededed;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    margin: 0 auto;
+}
+
+.pos-wechat-nav {
+    flex-shrink: 0;
+    height: 42px;
+    background: #ededed;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 12px;
+    border-bottom: 1px solid #d6d6d6;
+    position: relative;
+}
+
+.pos-wechat-back,
+.pos-wechat-more {
+    font-size: 22px;
+    color: #000;
+    line-height: 1;
+    width: 28px;
+}
+
+.pos-wechat-more {
+    font-size: 16px;
+    letter-spacing: 1px;
+    text-align: right;
+}
+
+.pos-wechat-title {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    font-weight: 600;
+    color: #000;
+    white-space: nowrap;
+}
+
+.pos-wechat-chat {
+    flex: 1;
+    background: #ededed;
+    padding: 16px 12px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.pos-wechat-chat::-webkit-scrollbar { width: 4px; }
+.pos-wechat-chat::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 2px; }
+
+/* 气泡 */
+.pos-wechat-bubble {
+    max-width: 70%;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.45;
+    word-break: break-word;
+    color: #000;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+    animation: posBubbleIn 0.32s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+@keyframes posBubbleIn {
+    from { opacity: 0; transform: translateY(8px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.pos-wechat-bubble-me {
+    align-self: flex-end;
+    background: #95ec69;
+    border-top-right-radius: 2px;
+}
+
+.pos-wechat-bubble-friend {
+    align-self: flex-start;
+    background: #ffffff;
+    border-top-left-radius: 2px;
+}
+
+/* 教学点标注（每条 friend 消息下方） */
+.pos-teach-tag {
+    align-self: flex-start;
+    max-width: 70%;
+    margin: -4px 0 8px 8px;
+    padding: 4px 10px;
+    font-size: 12px;
+    line-height: 1.4;
+    border-radius: 10px;
+    color: #fff;
+    background: rgba(142, 68, 173, 0.9);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    animation: posBubbleIn 0.4s ease-out;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+}
+
+.pos-teach-tag-p1 {
+    background: rgba(93, 109, 126, 0.95);  /* 灰蓝 — 教学点1 倾听 */
+}
+
+.pos-teach-tag-p2 {
+    background: rgba(248, 233, 161, 0.95);  /* 暖黄 — 教学点2 回应 */
+    color: #2c3e50;
+}
+
+.pos-teach-tag-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.85;
+    flex-shrink: 0;
+}
+
+/* 继续按钮播放完后亮起 */
+#pos-scene-1-5-next {
+    opacity: 0.4;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+#pos-scene-1-5-next.ready {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 /* 教学场景 2：选择题 */

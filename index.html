@@ -230,9 +230,25 @@
                     </div>
                 </div>
 
-                <!-- 场景3A：工位上班 - 麻木重复 -->
+                <!-- 场景3A：工位上班 - 麻木重复 + 老板施压 -->
                 <div id="scene-3a" class="scene">
                     <div class="scene-3a-content">
+                        <!-- 老板消息弹窗 -->
+                        <div class="boss-message" id="boss-message">
+                            <span class="boss-avatar">👨‍💼</span>
+                            <span class="boss-text" id="boss-text"></span>
+                        </div>
+                        <!-- 顶部状态栏：倒计时 / 工资 / 加班 -->
+                        <div class="office-status-bar">
+                            <div class="status-item salary-status" id="salary-status">
+                                <span class="status-label">今日工资</span>
+                                <span class="status-value" id="salary-value">¥200</span>
+                            </div>
+                            <div class="status-item countdown-status" id="countdown-status">
+                                <span class="status-label">剩余时间</span>
+                                <span class="status-value" id="countdown-value">00:35</span>
+                            </div>
+                        </div>
                         <div class="office-cubicle">
                             <div class="cubicle-wall cubicle-left"></div>
                             <div class="cubicle-wall cubicle-right"></div>
@@ -274,92 +290,90 @@
                                 <div class="click-counter" id="click-counter">0 / 20</div>
                             </div>
                         </div>
+                        <!-- 加班警告 -->
+                        <div class="overtime-warning" id="overtime-warning">
+                            <div class="overtime-text">⚠ 下班时间到 · 任务未完成 · 进入强制加班模式</div>
+                        </div>
                         <div class="inner-monologue" id="scene3a-monologue"></div>
                     </div>
                 </div>
 
-                <!-- 场景4：夜晚 - 选项消逝 -->
+                <!-- 场景4：夜晚 - 微信聊天界面（与朋友） -->
                 <div id="scene-4" class="scene">
                     <div class="scene-4-content">
-                        <div class="night-options" id="night-options">
-                            <div class="night-option" data-option="music">听音乐</div>
-                            <div class="night-option" data-option="watch">看剧</div>
-                            <div class="night-option" data-option="chat">找人聊天</div>
-                        </div>
-                        <button id="try-message-btn" class="btn btn-message" style="display: none;">试着给某人发消息...</button>
-                        <div class="message-bubble" id="message-bubble" style="display: none;">
-                            <div class="message-text">我最近...感觉不太好...</div>
-                        </div>
-                        <div class="reply-bubble" id="reply-bubble" style="display: none;">
-                            <div class="reply-text">早点睡吧</div>
+                        <div class="wechat-screen">
+                            <!-- 状态栏 -->
+                            <div class="wechat-status-bar">
+                                <span class="wechat-time" id="wechat-time">09:13</span>
+                                <div class="wechat-status-icons">
+                                    <span class="wechat-icon-moon">🌙</span>
+                                    <span class="wechat-icon-signal">📶</span>
+                                    <span class="wechat-icon-battery">57</span>
+                                </div>
+                            </div>
+                            <!-- 导航栏 -->
+                            <div class="wechat-nav">
+                                <div class="wechat-back">‹</div>
+                                <div class="wechat-title">朋友</div>
+                                <div class="wechat-more">···</div>
+                            </div>
+                            <!-- 聊天区域 -->
+                            <div class="wechat-chat" id="wechat-chat"></div>
+                            <!-- 底部输入栏 -->
+                            <div class="wechat-input-bar">
+                                <div class="wechat-icon-btn wechat-voice">🔊</div>
+                                <div class="wechat-input-box"></div>
+                                <div class="wechat-icon-btn wechat-emoji">😊</div>
+                                <div class="wechat-icon-btn wechat-plus">+</div>
+                            </div>
                         </div>
                         <div class="inner-monologue" id="scene4-monologue"></div>
                     </div>
                 </div>
 
-                <!-- 场景5：镜子 -->
-                <div id="scene-5" class="scene">
-                    <div class="scene-5-content">
-                        <div class="mirror-container" id="mirror-container">
-                            <div class="mirror" id="mirror">
-                                <div class="mirror-reflection" id="mirror-reflection"></div>
-                            </div>
-                        </div>
-                        <div class="crack-overlay" id="crack-overlay" style="display: none;"></div>
-                        <div class="inner-monologue" id="scene5-monologue"></div>
-                    </div>
-                </div>
-
-                <!-- 过渡动画：溺水下沉 → 渐黑（真实场景，约 95 秒） -->
+                <!-- 过渡动画：第一视角 · 溺水下沉（仰视水面）→ 渐黑 -->
                 <div id="transition-scene" class="scene">
+                    <!-- 水体基底（基础色 + 顶部微亮、底部深黑） -->
                     <div class="drown-water"></div>
-                    <div class="drown-rays">
-                        <div class="drown-ray drown-ray-1"></div>
-                        <div class="drown-ray drown-ray-2"></div>
-                        <div class="drown-ray drown-ray-3"></div>
-                        <div class="drown-ray drown-ray-4"></div>
-                    </div>
-                    <div class="drown-particles" id="drown-particles"></div>
-                    <div class="drown-surface"></div>
 
-                    <div class="drown-figure-wrap" id="drown-figure-wrap">
-                        <svg class="drown-figure-svg" viewBox="0 0 80 180" xmlns="http://www.w3.org/2000/svg">
-                            <defs>
-                                <radialGradient id="drown-aura" cx="50%" cy="50%" r="60%">
-                                    <stop offset="0%" stop-color="rgba(20, 30, 45, 0.45)"/>
-                                    <stop offset="100%" stop-color="rgba(20, 30, 45, 0)"/>
-                                </radialGradient>
-                            </defs>
-                            <ellipse cx="40" cy="100" rx="42" ry="65" fill="url(#drown-aura)"/>
-                            <g class="drown-legs">
-                                <path d="M 34 120 Q 30 145 26 170" stroke="rgba(20,28,40,0.92)" stroke-width="9" fill="none" stroke-linecap="round"/>
-                                <path d="M 46 120 Q 50 145 54 170" stroke="rgba(20,28,40,0.92)" stroke-width="9" fill="none" stroke-linecap="round"/>
-                            </g>
-                            <g class="drown-torso" id="drown-torso">
-                                <path d="M 28 38 Q 40 40 52 38 L 55 110 Q 55 120 48 120 L 32 120 Q 25 120 25 110 Z" fill="rgba(20,28,40,0.92)"/>
-                            </g>
-                            <g class="drown-arm-left" id="drown-arm-left">
-                                <path d="M 50 44 Q 60 70 56 110" stroke="rgba(20,28,40,0.92)" stroke-width="7" fill="none" stroke-linecap="round"/>
-                            </g>
-                            <g class="drown-arm-right" id="drown-arm-right">
-                                <path d="M 30 44 Q 20 70 24 110" stroke="rgba(20,28,40,0.92)" stroke-width="7" fill="none" stroke-linecap="round"/>
-                            </g>
-                            <g class="drown-head" id="drown-head">
-                                <circle cx="40" cy="22" r="14" fill="rgba(20,28,40,0.92)"/>
-                            </g>
-                        </svg>
+                    <!-- 仰视视角的"世界"：水面 + 光柱 + 悬浮颗粒，会随深度整体下移 / 缩小 / 变暗 -->
+                    <div class="drown-pov-world" id="drown-pov-world">
+                        <!-- 头顶的水面：明暗分界线 + 上方的天光晕 -->
+                        <div class="drown-surface" id="drown-surface">
+                            <div class="drown-surface-sky"></div>
+                            <div class="drown-surface-line"></div>
+                            <div class="drown-surface-glow"></div>
+                        </div>
+
+                        <!-- 丁达尔光柱（从水面斜插下来） -->
+                        <div class="drown-rays" id="drown-rays">
+                            <div class="drown-ray drown-ray-1"></div>
+                            <div class="drown-ray drown-ray-2"></div>
+                            <div class="drown-ray drown-ray-3"></div>
+                            <div class="drown-ray drown-ray-4"></div>
+                        </div>
+
+                        <!-- 悬浮颗粒 -->
+                        <div class="drown-particles" id="drown-particles"></div>
                     </div>
 
+                    <!-- 气泡（自己的呼吸，从屏幕底部中央持续往上飘） -->
                     <div class="drown-bubbles-layer" id="drown-bubbles"></div>
+
+                    <!-- 视野边缘压迫感（暗角 + 模糊加重，模拟"氧气不足"） -->
                     <div class="drown-vignette" id="drown-vignette"></div>
                     <div class="drown-depth-overlay" id="drown-depth-overlay"></div>
+
+                    <!-- 内心独白 -->
                     <div class="drown-inner-text" id="drown-inner-text">正在下沉</div>
 
-                    <button id="drown-float-btn" class="drown-float-btn" type="button" aria-label="向上浮">
-                        <span class="drown-btn-label">向 上 浮</span>
+                    <!-- 行动按钮：尝试上浮（点击会先短暂上浮一下，然后比之前沉得更深） -->
+                    <button id="drown-float-btn" class="drown-float-btn" type="button" aria-label="尝试上浮">
+                        <span class="drown-btn-label">尝 试 上 浮</span>
                         <span class="drown-btn-sub">已尝试 <span id="drown-btn-count">0</span> 次</span>
                     </button>
 
+                    <!-- 最终黑屏 -->
                     <div class="drown-final-black" id="drown-final-black"></div>
                 </div>
             </div>
@@ -411,6 +425,28 @@
                     </div>
                     <div class="pos-teaching-footer">
                         <button id="pos-scene-1-next" class="btn btn-primary pos-next-btn">继续 →</button>
+                    </div>
+                </div>
+
+                <!-- 教学场景 1.5：真实案例（场景4的微信聊天回放 + 教学点标注） -->
+                <div id="pos-scene-1-5" class="scene pos-scene">
+                    <div class="pos-teaching-header">
+                        <span class="pos-step-tag">真实案例</span>
+                        <h2>把第 1 课和第 2 课放回真实对话里</h2>
+                        <p class="pos-subtitle">这是刚才那位朋友在夜晚发起的微信聊天 —— 留意朋友的每条回复</p>
+                    </div>
+                    <div class="pos-wechat-screen">
+                        <div class="pos-wechat-nav">
+                            <div class="pos-wechat-back">‹</div>
+                            <div class="pos-wechat-title">朋友</div>
+                            <div class="pos-wechat-more">···</div>
+                        </div>
+                        <div class="pos-wechat-chat" id="pos-wechat-chat">
+                            <!-- 动态注入气泡 + 教学点标注 -->
+                        </div>
+                    </div>
+                    <div class="pos-teaching-footer">
+                        <button id="pos-scene-1-5-next" class="btn btn-primary pos-next-btn">进入第 2 课 →</button>
                     </div>
                 </div>
 
@@ -479,8 +515,21 @@
             </div>
         </div>
 
-        <!-- 科普总结页 -->
-        <div id="science-page" class="page">
+        <!-- 共情档案 + 科普 合并页（先出现共情档案，再向下浏览科普） -->
+        <div id="empathy-page" class="page">
+            <!-- 上：共情档案（先出现） -->
+            <div class="empathy-content">
+                <div class="empathy-icon">❤️</div>
+                <h1>你刚刚走进了一个人的内心</h1>
+                <p>感谢你的理解和陪伴，对他们来说很重要。</p>
+                <div class="empathy-actions">
+                    <button id="share-poster-btn" class="btn btn-primary">生成海报</button>
+                    <button id="go-to-resources-btn" class="btn btn-secondary">查看资源</button>
+                </div>
+                <div class="empathy-scroll-hint">↓ 向下浏览更多科普</div>
+            </div>
+
+            <!-- 下：科普内容（后出现，向下滚动可见） -->
             <div class="science-container" id="science-container">
                 <section class="science-section" id="section-experience">
                     <h2>你刚才体验了什么</h2>
@@ -517,48 +566,13 @@
                     <p>但抑郁症是可以治疗的。</p>
                 </section>
                 <div class="science-next-btn-container">
-                    <button id="science-next-btn" class="btn btn-primary">完成体验</button>
+                    <button id="empathy-complete-btn" class="btn btn-primary">完成体验</button>
                 </div>
             </div>
         </div>
 
-        <!-- 共情档案页 -->
-        <div id="empathy-page" class="page">
-            <div class="empathy-content">
-                <div class="empathy-icon">❤️</div>
-                <h1>你刚刚走进了一个人的内心</h1>
-                <p>感谢你的理解和陪伴，对他们来说很重要。</p>
-                <button id="share-poster-btn" class="btn btn-primary">生成海报</button>
-                <button id="go-to-resources-btn" class="btn btn-secondary">查看资源</button>
-            </div>
-        </div>
 
-        <!-- 资源页 -->
-        <div id="resources-page" class="page">
-            <div class="resources-content">
-                <h1>心理援助资源</h1>
-                <div class="resource-cards">
-                    <div class="resource-card">
-                        <h2>全国心理援助热线</h2>
-                        <p class="hotline-number">400-161-9995</p>
-                    </div>
-                    <div class="resource-card">
-                        <h2>北京心理危机研究与干预中心</h2>
-                        <p class="hotline-number">010-82951332</p>
-                    </div>
-                    <div class="resource-card">
-                        <h2>希望24热线</h2>
-                        <p class="hotline-number">400-161-9995</p>
-                    </div>
-                </div>
-                <div class="encouragement-text">
-                    <p>你不是一个人。</p>
-                    <p>寻求帮助是勇敢的。</p>
-                    <p>一切都会好起来的。</p>
-                </div>
-                <button id="back-to-hall-btn" class="btn btn-primary">回到大厅</button>
-            </div>
-        </div>
+
     </div>
 
     <script src="js/app.js"></script>
@@ -579,17 +593,17 @@
         { type: 'scene', id: 'scene-3b',         label: '在家无力' },
         { type: 'scene', id: 'scene-3a',         label: '工位麻木' },
         { type: 'scene', id: 'scene-4',          label: '夜晚消逝' },
-        { type: 'scene', id: 'scene-5',          label: '镜子' },
         { type: 'scene', id: 'transition-scene', label: '溺水过渡' },
         { type: 'page',  id: 'positive-script-page',  label: '正面剧本' },
         { type: 'scene', id: 'pos-scene-intro',       label: '正面身份' },
         { type: 'scene', id: 'pos-scene-1',           label: '教学1：倾听' },
+        { type: 'scene', id: 'pos-scene-1-5',         label: '真实案例：微信回放' },
         { type: 'scene', id: 'pos-scene-2',           label: '教学2：回应' },
         { type: 'scene', id: 'pos-scene-3',           label: 'AI 实战' },
         { type: 'page',  id: 'positive-complete-page',label: '正面完成' },
-        { type: 'page',  id: 'science-page',     label: '科普' },
-        { type: 'page',  id: 'empathy-page',     label: '共情档案' },
+        { type: 'page',  id: 'empathy-page',     label: '共情+科普（合并）' },
         { type: 'page',  id: 'resources-page',   label: '资源' },
+
       ];
 
       // 注入样式(避免污染原 css/styles.css)

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>「心影」剧情流程图</title>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@9.4.3/dist/mermaid.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -120,23 +120,18 @@ flowchart TD
     S2A -->|微笑值100%| M2A["💭 我没事，真的没事…"]
     S2B -->|弹幕生成完毕| M2B["💭 我真的这么没用吗…"]
 
-    M2A -->|出门上班| S3A["场景3A · 工位上班<br/>点击任务按钮 20 次<br/>按钮随机移动 · 机械执行"]
+    M2A -->|出门上班| S3A["场景3A · 工位上班<br/>点击任务按钮 20 次 · 按钮随机移动<br/>⏱ 35秒倒计时 · 老板骂人弹窗<br/>💸 扣工资飘字 · 超时进入加班模式"]
     M2B -->|继续躺着| S3B["场景3B · 在家无力<br/>尝试刷手机 / 看书 / 收拾 / 点外卖<br/>每件都中途放弃"]
 
     S3A -->|完成20次| M3A["💭 我在做这些事，<br/>但好像不是我做的…<br/>没有意义，也没有尽头"]
     S3B -->|四件都放弃| M3B["💭 明明有很多事可以做…<br/>可我什么都提不起劲"]
 
-    M3A -->|继续| S4["场景4 · 夜晚<br/>选项悬停即消逝<br/>发出消息的迟疑"]
+    M3A -->|继续| S4["场景4 · 夜晚<br/>📱 微信聊天界面<br/>联系人：朋友<br/>气泡对话 · 无选项 · 模拟微信"]
     M3B -->|继续| S4
 
-    S4 -->|所有选项消逝<br/>点击「试着发条消息」| Reply["💬 3秒后收到回复"]
-    Reply --> M4["💭 算了…"]
-    M4 -->|继续| S5["场景5 · 镜子<br/>点击镜子 · 裂痕浮现"]
+    S4 -->|继续| Trans["🌊 过渡动画<br/>第一视角溺水下沉<br/>仰视水面 · 点击「尝试上浮」越沉越深"]
 
-    S5 --> M5["💭 你可能觉得我看起来很正常<br/>但每天早上醒来<br/>都像是在水里挣扎…"]
-    M5 -->|继续| Trans["🌊 过渡动画<br/>溺水下沉 · 5.5s 渐黑"]
-
-    Trans --> RoleModal{"🎭 角色切换弹窗<br/>（黑屏后弹出）"}
+    Trans --> RoleModal{"🎭 角色切换弹窗<br/>黑屏后弹出"}
 
     RoleModal -->|开始陪伴者练习| PosScript["🌟 正面回溯剧本<br/>陪伴者练习室"]
     RoleModal -->|跳过| Complete["✅ 完成体验<br/>记录 localStorage"]
@@ -156,6 +151,7 @@ flowchart TD
     Complete --> Science["📚 科普总结页<br/>视差滚动 · 误解澄清<br/>科学解释 · 建议 · 真实数据"]
     Science -->|继续| Empathy["💌 共情档案页<br/>总结语 · 海报生成"]
     Empathy -->|进入资源页| Resources["🆘 资源页<br/>心理援助热线 · 鼓励话语"]
+
     Resources -.->|返回大厅| Hall
 
     classDef page fill:#2C3E50,stroke:#5D6D7E,color:#fff,stroke-width:1.5px;
@@ -166,9 +162,9 @@ flowchart TD
     classDef terminal fill:#1a1f2e,stroke:#85929E,color:#d6dbe5,stroke-width:2px;
 
     class Opening,Hall,Intro,Science,Empathy,Resources page;
-    class S1,Shake,S2A,S2B,S3A,S3B,S4,S5,Trans,Reply scene;
+    class S1,Shake,S2A,S2B,S3A,S3B,S4,Trans scene;
     class Choice2,RoleModal,Pos2 choice;
-    class M1,M2A,M2B,M3A,M3B,M4,M5,Pos2Bad inner;
+    class M1,M2A,M2B,M3A,M3B,Pos2Bad inner;
     class PosScript,PosIntro,Pos1,Pos2Good,Pos3,PosDone positive;
     class Start,Complete,Info,Pos2Bad terminal;
         </pre>
@@ -184,7 +180,7 @@ flowchart TD
 flowchart LR
     subgraph 沉浸体验["🌑 第一视角 · 患者内心"]
         direction TB
-        A1["醒来 · 起床困难"] --> A2["维持微笑 / 被弹幕攻击"] --> A3["机械工作"] --> A4["夜晚孤独"] --> A5["镜中对视 · 溺水"]
+        A1["醒来 · 起床困难"] --> A2["维持微笑 / 被弹幕攻击"] --> A3["机械工作"] --> A4["夜晚孤独"] --> A5["第一视角溺水下沉<br/>点击上浮反而越沉越深"]
     end
 
     subgraph 回溯练习["🌅 第二视角 · 陪伴者练习"]
